@@ -1,0 +1,74 @@
+
+services:
+ 
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8001:8000"
+    networks:
+      - backend-network
+    depends_on:
+      - mysql
+
+
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    restart: always
+    ports:
+      - "8002:8000"
+    networks:
+      - backend-network
+    depends_on:
+      - postgres
+
+
+  frontend:
+    build: ./frontend
+    container_name: auroracrud-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: product_user
+      POSTGRES_PASSWORD: product_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+volumes:
+  mysql_data:
+  postgres_data:
+
+networks:
+  backend-network:
+    driver: bridge
+
