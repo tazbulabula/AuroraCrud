@@ -1,6 +1,4 @@
-
 services:
- 
   auth-service:
     build: ./auth-service
     container_name: auth-service
@@ -11,8 +9,9 @@ services:
       - backend-network
     depends_on:
       - mysql
-
-
+    volumes:
+      - ./auth-service:/var/www
+      - ./auth-service/php.ini:/usr/local/etc/php/php.ini
 
   product-service:
     build: ./product-service
@@ -24,7 +23,9 @@ services:
       - backend-network
     depends_on:
       - postgres
-
+    volumes:
+      - ./product-service:/var/www
+      - ./product-service/php.ini:/usr/local/etc/php/php.ini
 
   frontend:
     build: ./frontend
@@ -34,7 +35,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-
+      
 
   mysql:
     image: mysql:8.0
@@ -49,7 +50,6 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - backend-network
-
 
   postgres:
     image: postgres:15
@@ -71,4 +71,3 @@ volumes:
 networks:
   backend-network:
     driver: bridge
-

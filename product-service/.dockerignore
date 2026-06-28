@@ -1,0 +1,22 @@
+
+# Laravel/PHP
+vendor
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+*.log
+
+# Composer
+composer.lock
+
+# Git
+.git
+.gitignore
+
+# Config local
+.env
+
+# IDE/Editor
+.vscode
+.idea

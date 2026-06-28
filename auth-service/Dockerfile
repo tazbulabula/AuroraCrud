@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     && docker-php-ext-install pdo_mysql zip
 
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
