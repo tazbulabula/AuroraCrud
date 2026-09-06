@@ -13,7 +13,7 @@ echo "🧹 Limpando cache de configuração..."
 php artisan config:clear
 
 echo "📦 Executando migrations..."
-php artisan migrate --force
+php artisan migrate:fresh --force
 php artisan db:seed --force
 
 echo "🧹 Otimizando cache..."
