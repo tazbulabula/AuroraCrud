@@ -5,13 +5,14 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 FROM php:8.4-fpm
 
-# Instalar dependências do sistema e extensões PHP necessárias
+# ✅ CORRIGIDO: Instalar driver PostgreSQL
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    libpq-dev \
     libzip-dev \
     zip \
-    && docker-php-ext-install pdo_mysql zip
+    && docker-php-ext-install pdo_pgsql zip
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -27,7 +28,7 @@ COPY --from=build /app/vendor ./vendor
 # Executar scripts
 RUN composer run-script post-autoload-dump || true
 
-# Permissões para storage e bootstrap
+# Permissões
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8000
