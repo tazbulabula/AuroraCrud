@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -15,20 +16,24 @@ class ProductController extends Controller
     {
         $userId = auth('api')->id();
 
-        if($userId!==null){
-            return response()->json(['error'=>'User não encontrado.'], 404);
+        if($userId === null){  // ← Usar === null
+            return response()->json(['error' => 'User não encontrado.'], 404);
         }
 
         $products = $this->product_service->getAllProducts($userId);
-
         return response()->json($products);
     }
-
 
     public function create(Request $request)
     {
         $userId = auth('api')->id();
-
+        
+        if($userId === null){  // ← Verificar se o usuário existe
+            return response()->json(['error' => 'User não encontrado.'], 404);
+        }
+        
+        Log::info('User ID: ' . $userId);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -37,7 +42,6 @@ class ProductController extends Controller
         ]);
 
         $product = $this->product_service->createProduct($validated, $userId);
-
         return response()->json($product, 201);
     }
 
@@ -71,13 +75,15 @@ class ProductController extends Controller
     }
 
 
-    public function delete(Product $product)
+    public function delete($id)
     {
-
         $userId = auth('api')->id();
 
-        $product = Product::where('user_id', $userId)->findOrFail($id);
+        if($userId === null){  // ← Usar === null
+            return response()->json(['error' => 'User não encontrado.'], 404);
+        }
 
+        $product = Product::where('user_id', $userId)->findOrFail($id);
         $product->delete();
 
         return response()->json(null, 204);

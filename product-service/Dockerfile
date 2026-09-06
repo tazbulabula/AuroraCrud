@@ -3,8 +3,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader
 
-
-# Imagem base PHP 8.2 com FPM
+# Imagem base PHP 8.4 com FPM
 FROM php:8.4-fpm 
 
 # Instalar dependências do sistema e extensões PHP necessárias
@@ -14,8 +13,13 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
     zip \
-    && docker-php-ext-install pdo_pgsql zip
-
+    libicu-dev \
+    && docker-php-ext-install \
+        pdo_pgsql \
+        zip \
+        intl \
+        exif \
+        gd
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
@@ -28,12 +32,11 @@ WORKDIR /var/www
 # Copiar arquivos do projeto Laravel
 COPY . .
 
-
 # Permissões para storage e bootstrap
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expor porta padrão do Laravel
 EXPOSE 8000
 
-# Comando para iniciar o servidor Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8001"]
+# Rodar na porta 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

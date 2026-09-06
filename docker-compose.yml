@@ -26,6 +26,8 @@ services:
     volumes:
       - ./product-service:/var/www
       - ./product-service/php.ini:/usr/local/etc/php/php.ini
+    environment:
+    - JWT_SECRET=${JWT_SECRET}
 
   frontend:
     build: ./frontend

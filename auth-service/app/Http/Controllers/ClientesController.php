@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ClientesController extends Controller
@@ -56,12 +57,18 @@ class ClientesController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
+        if (auth()->user()->role === 'CLIENT' && $user->id !== auth()->user()->id) {
+            return response()->json([
+                'error' => 'Apenas administradores podem atualizar outros usuários.',
+            ], 403);
+        }
+
         try {
             $validatedData = $request->validate([
                 'name' => 'nullable|string|max:255',
                 'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:8',
-                'role' => 'nullable|string|max:10|in:ADMIN,CLIENTE',
+                'role' => 'nullable|string|max:10|in:ADMIN,CLIENT',
             ]);
 
             $validatedData = array_filter($validatedData, fn($value) => $value !== null);
@@ -84,6 +91,12 @@ class ClientesController extends Controller
 
     public function delete(User $user): JsonResponse
     {
+        if (auth()->user()->role === 'CLIENT') {
+            return response()->json([
+                'error' => 'Apenas administradores podem atualizar outros usuários.',
+            ], 403);
+        }
+
         $user->delete();
 
         return response()->json([

@@ -16,7 +16,7 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
-const API_URL = 'http://localhost';
+const API_URL = 'http://localhost:8001';
 
 
 const api: AxiosInstance = axios.create({

@@ -1,5 +1,6 @@
+import { authService } from '@/services/authService';
 import React, { useState } from 'react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -14,10 +15,10 @@ const Login: React.FC = () => {
     setErro('');
 
     try {
-
-      $token = await 
+      await authService.login(email, senha);
       navigate('/');
     } catch (error) {
+      console.log(error);
       setErro('Erro ao fazer login. Verifique suas credenciais.');
     } finally {
       setLoading(false);
@@ -25,8 +26,8 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Aurora CRUD
@@ -70,14 +71,28 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
         
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <a href="#" className="hover:underline">Esqueceu a senha?</a>
+        {/* Links abaixo do formulário */}
+        <div className="mt-6 space-y-3 text-center">
+          {/* Link para Registrar */}
+          <div className="text-sm text-gray-600">
+            Não tem uma conta?{' '}
+            <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors">
+              Registre-se
+            </Link>
+          </div>
+          
+          {/* Link para Esqueceu a senha */}
+          <div className="text-sm text-gray-600">
+            <a href="#" className="text-gray-500 hover:text-gray-700 hover:underline transition-colors">
+              Esqueceu a senha?
+            </a>
+          </div>
         </div>
       </div>
     </div>
