@@ -31,7 +31,7 @@ else
 fi
 
 echo "📦 Executando migrations..."
-php artisan migrate --force
+php artisan migrate --force --path=database/migrations/products
 
 echo "🧹 Otimizando cache..."
 php artisan config:cache
