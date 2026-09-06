@@ -21,6 +21,7 @@ return [
 
     
     'allowed_origins' => [
+        'https://aurora-crud.vercel.app',
         'https://auroracrud.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000',
