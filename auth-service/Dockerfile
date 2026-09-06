@@ -1,6 +1,6 @@
 FROM composer:2 AS build
 WORKDIR /app
-COPY composer.json ./  # ← Remover composer.lock
+COPY composer.json ./
 RUN composer install --no-dev --optimize-autoloader
 
 FROM php:8.4-fpm
@@ -26,7 +26,6 @@ WORKDIR /var/www
 # Copiar arquivos do projeto Laravel
 COPY . .
 
-# ✅ Copiar vendor do estágio de build
 COPY --from=build /app/vendor ./vendor
 
 # Permissões para storage e bootstrap
