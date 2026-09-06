@@ -35,12 +35,9 @@ const Clientes: React.FC = () => {
   useEffect(() => {
     // Se ainda está carregando, não faz nada
     if (authLoading) {
-      console.log('⏳ Aguardando carregamento do usuário...');
+
       return;
     }
-
-    console.log('✅ Usuário carregado:', user);
-    console.log('🔍 canViewClientes:', canViewClientes());
 
     // Se não tem permissão, redireciona
     if (!canViewClientes()) {
@@ -50,22 +47,20 @@ const Clientes: React.FC = () => {
     }
 
     // Se tem permissão, carrega os clientes
-    console.log('✅ Tem permissão! Carregando clientes...');
     carregarClientes();
   }, [authLoading, user]); // ← Dependências corretas
 
   // Carregar clientes (apenas ADMIN pode ver)
   const carregarClientes = async () => {
     if (!canViewClientes()) {
-      console.log('❌ Sem permissão para carregar clientes');
+
       return;
     }
     
     try {
       setLoading(true);
-      console.log('📡 Buscando clientes...');
       const data = await clienteService.listarTodos();
-      console.log('✅ Clientes carregados:', data);
+
       setClientes(data);
       setError(null);
     } catch (err) {

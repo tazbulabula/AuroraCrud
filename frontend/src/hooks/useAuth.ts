@@ -10,7 +10,7 @@ export function useAuth() {
     const loadUser = () => {
       try {
         const userData = authService.getUser();
-        console.log('🔍 useAuth - User loaded:', userData);
+
         setUser(userData);
       } catch (error) {
         console.error('❌ useAuth - Error loading user:', error);

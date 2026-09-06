@@ -1,5 +1,4 @@
-
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; // ← Remover Link
 import Clientes from './pages/Clientes';
 import Home from './pages/Home';
 import Produtos from './pages/Produtos';
@@ -8,19 +7,20 @@ import Login from './pages/Login';
 import Layout from './components/Layout/Layout';
 import Register from './pages/Register';
 import RoleGuard from './components/RoleGuard';
-import { ToastProvider } from './components/contexts/ToastContext';
+import ToastContainer from './components/Toast/ToastContainer';
 import Profile from './pages/Profile';
+import { ToastProvider } from './components/contexts/ToastContext';
 
 function App() {
   return (
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rota de Login (sem layout) */}
+          {/* Rotas Públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Rotas Protegidas (com Layout) */}
+          {/* Rotas Protegidas */}
           <Route
             path="/"
             element={
@@ -31,21 +31,26 @@ function App() {
           >
             <Route index element={<Home />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="clientes" element={<RoleGuard allowedRoles={['ADMIN']} redirectTo="/">
-                <Clientes />
-              </RoleGuard>} />
-            <Route path="produtos" element={<Produtos />} />
             
-            {/* Rotas futuras */}
+            <Route 
+              path="clientes" 
+              element={
+                <RoleGuard allowedRoles={['ADMIN']} redirectTo="/">
+                  <Clientes />
+                </RoleGuard>
+              } 
+            />
+            
+            <Route path="produtos" element={<Produtos />} />
             <Route path="pedidos" element={<div>Página de Pedidos</div>} />
             <Route path="fornecedores" element={<div>Página de Fornecedores</div>} />
             <Route path="usuarios" element={<div>Página de Usuários</div>} />
             <Route path="configuracoes" element={<div>Página de Configurações</div>} />
           </Route>
         </Routes>
+        <ToastContainer />
       </BrowserRouter>
     </ToastProvider>
-    
   );
 }
 
