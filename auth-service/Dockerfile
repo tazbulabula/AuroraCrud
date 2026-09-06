@@ -25,6 +25,11 @@ COPY . .
 # Copiar vendor
 COPY --from=build /app/vendor ./vendor
 
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 # ✅ Executar migrations durante o build
 RUN php artisan migrate --force || true
 
