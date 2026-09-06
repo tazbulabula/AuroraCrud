@@ -1,0 +1,32 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Git
+.git
+.gitignore
+
+# Config local
+.env
+
+# IDE/Editor
+.vscode
+.idea
+
+# Ignorar arquivos temporários
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Ignorar arquivos de teste gerados
+Bearer*
+token*
+dataProduct*
+*,
+
+# Ignorar outros arquivos indesejados
+-*
+*.00,
+[0-9]*,

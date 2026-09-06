@@ -1,7 +1,9 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-// URL do Product Service
+// ✅ Usar variável de ambiente
 const PRODUCT_API_URL = import.meta.env.VITE_PRODUCT_API_URL || 'http://localhost:8002/api';
+
+console.log('🔍 PRODUCT_API_URL:', PRODUCT_API_URL);
 
 const productApi: AxiosInstance = axios.create({
   baseURL: PRODUCT_API_URL,

@@ -1,8 +1,6 @@
-
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import axios from 'axios';
 
-// Tipos para as respostas da API
 export interface ApiResponse<T = any> {
   data: T;
   message: string;
@@ -16,8 +14,10 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
-const API_URL = 'http://localhost:8001';
+// ✅ Usar variável de ambiente
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
+console.log('🔍 API_URL:', API_URL);
 
 const api: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -28,16 +28,12 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-
 api.interceptors.request.use(
   (config) => {
-    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-  
-    
     return config;
   },
   (error: AxiosError) => {
@@ -46,50 +42,37 @@ api.interceptors.request.use(
   }
 );
 
-
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-
     return response;
   },
   (error: AxiosError<ApiError>) => {
-
-    
     if (error.response) {
- 
       const status = error.response.status;
       const data = error.response.data;
       
       console.error(`Erro ${status}:`, data?.message || error.message);
       
- 
       switch (status) {
         case 401:
-         
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-
           if (!window.location.pathname.includes('/login')) {
             window.location.href = '/login';
           }
           break;
-          
         case 403:
           console.error('Acesso negado. Você não tem permissão.');
           break;
-          
         case 404:
           console.error('Recurso não encontrado.');
           break;
-          
         case 422:
           console.error('Erro de validação:', data?.errors);
           break;
-          
         case 500:
           console.error('Erro interno do servidor.');
           break;
-          
         default:
           console.error('Erro na requisição:', data?.message || error.message);
       }
@@ -99,18 +82,14 @@ api.interceptors.response.use(
         status: status,
         errors: data?.errors || {},
       });
-      
     } else if (error.request) {
-      
       console.error('Sem resposta do servidor:', error.request);
       return Promise.reject({
         message: 'Sem resposta do servidor. Verifique sua conexão.',
         status: 0,
         errors: {},
       });
-      
     } else {
-      
       console.error('Erro na configuração:', error.message);
       return Promise.reject({
         message: error.message || 'Erro desconhecido',
@@ -121,29 +100,19 @@ api.interceptors.response.use(
   }
 );
 
-
 export const apiService = {
-  
   get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     return api.get(url, config).then(res => res.data);
   },
-  
- 
   post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
     return api.post(url, data, config).then(res => res.data);
   },
-  
-  
   put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
     return api.put(url, data, config).then(res => res.data);
   },
-  
- 
   patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
     return api.patch(url, data, config).then(res => res.data);
   },
-  
-  
   delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     return api.delete(url, config).then(res => res.data);
   },
