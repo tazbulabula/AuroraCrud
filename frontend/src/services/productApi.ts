@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import type { ApiError } from '@/types';
 
 // URL do Product Service
 const PRODUCT_API_URL = import.meta.env.VITE_PRODUCT_API_URL || 'http://localhost:8002/api';
@@ -13,7 +12,6 @@ const productApi: AxiosInstance = axios.create({
   },
 });
 
-// Interceptor para adicionar token (pega do Auth Service)
 productApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -27,10 +25,9 @@ productApi.interceptors.request.use(
   }
 );
 
-// Interceptor de resposta
 productApi.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<ApiError>) => {
+  (error: AxiosError) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
