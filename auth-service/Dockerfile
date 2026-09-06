@@ -26,6 +26,8 @@ WORKDIR /var/www
 # Copiar arquivos do projeto Laravel
 COPY . .
 
+# ✅ COPIA O VENDOR DO ESTÁGIO DE BUILD
+COPY --from=build /app/vendor ./vendor
 
 # Permissões para storage e bootstrap
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache

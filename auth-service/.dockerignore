@@ -21,3 +21,17 @@ composer.lock
 # IDE/Editor
 .vscode
 .idea
+
+.env
+.env.*
+.git
+.gitignore
+.dockerignore
+vendor/
+node_modules/
+storage/*.log
+tests/
+docker-compose.yml
+Dockerfile
+.idea/
+.vscode/
