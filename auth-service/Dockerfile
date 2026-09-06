@@ -28,7 +28,7 @@ COPY --from=build /app/vendor ./vendor
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 
 # ✅ Executar migrations durante o build
 RUN php artisan migrate --force || true
@@ -38,5 +38,6 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8000
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 # ✅ Iniciar servidor
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+#CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
