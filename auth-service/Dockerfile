@@ -1,7 +1,7 @@
 FROM composer:2 AS build
 WORKDIR /app
 COPY composer.json ./
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 FROM php:8.4-fpm
 
@@ -26,7 +26,11 @@ WORKDIR /var/www
 # Copiar arquivos do projeto Laravel
 COPY . .
 
+# Copiar vendor do estágio de build
 COPY --from=build /app/vendor ./vendor
+
+# Executar scripts do Composer depois que o artisan estiver disponível
+RUN composer run-script post-autoload-dump
 
 # Permissões para storage e bootstrap
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
