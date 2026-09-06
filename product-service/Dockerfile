@@ -28,6 +28,11 @@ RUN composer install --no-dev --optimize-autoloader
 # Permissões para storage e bootstrap
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 # Expor porta padrão do Laravel
 EXPOSE 8000
 
