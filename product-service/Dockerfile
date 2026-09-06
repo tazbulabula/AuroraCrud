@@ -18,11 +18,14 @@ WORKDIR /var/www
 # Copiar arquivos
 COPY . .
 
+# ✅ Criar diretório de views
+RUN mkdir -p /var/www/resources/views
+
 # Instalar dependências
 RUN composer install --no-dev --optimize-autoloader
 
 # Permissões
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/resources/views
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
