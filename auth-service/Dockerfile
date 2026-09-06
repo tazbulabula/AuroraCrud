@@ -25,19 +25,15 @@ COPY . .
 # Copiar vendor
 COPY --from=build /app/vendor ./vendor
 
+# Criar diretórios necessários
+RUN mkdir -p /var/www/resources/views
+RUN mkdir -p /var/www/storage/framework/views
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/resources/views
+
+# Copiar entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-
-
-# ✅ Executar migrations durante o build
-RUN php artisan migrate --force || true
-
-# Permissões
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-# ✅ Iniciar servidor
-#CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
