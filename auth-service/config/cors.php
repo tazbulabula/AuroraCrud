@@ -20,11 +20,10 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://aurora-crud.vercel.app',
         'https://auroracrud.vercel.app',
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://auroracrud-auth.onrender.com',
+        'https://auroracrud.onrender.com',
         'https://productservice-5qjn.onrender.com',
     ],
 

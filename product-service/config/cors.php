@@ -20,11 +20,21 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        // ✅ Frontend (Vercel)
         'https://auroracrud.vercel.app',
         'https://auroracrud.vercel.app',
+        
+        // ✅ Auth Service (comunicação entre serviços)
+        'https://auroracrud.onrender.com',
+        'https://auroracrud.onrender.com',
+        
+        // ✅ Desenvolvimento local
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://auroracrud.onrender.com',
+        'http://localhost:8001',
+        'http://localhost:8002',
+        
+        // ✅ Product Service (self)
         'https://productservice-5qjn.onrender.com',
     ],
 
