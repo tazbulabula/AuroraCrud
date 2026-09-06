@@ -17,13 +17,13 @@ export const productService = {
 
   // Criar novo produto
   async criar(data: CreateProdutoDTO): Promise<Produto> {
-    const { data: produto } = await productApi.post<Produto>('/api/products', data);
+    const { data: produto } = await productApi.post<Produto>('/api/products/create', data);
     return produto;
   },
 
   // Atualizar produto
   async atualizar(id: number, data: UpdateProdutoDTO): Promise<Produto> {
-    const { data: produto } = await productApi.put<Produto>(`/api/products/${id}`, data);
+    const { data: produto } = await productApi.put<Produto>(`/api/products/update/${id}`, data);
     return produto;
   },
 
