@@ -5,7 +5,7 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 FROM php:8.4-fpm
 
-# ✅ CORRIGIDO: Instalar driver PostgreSQL
+# Instalar dependências
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -19,18 +19,19 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copiar arquivos do projeto Laravel
+# Copiar arquivos
 COPY . .
 
-# Copiar vendor do estágio de build
+# Copiar vendor
 COPY --from=build /app/vendor ./vendor
 
-# Executar scripts
-RUN composer run-script post-autoload-dump || true
+# ✅ Executar migrations durante o build
+RUN php artisan migrate --force || true
 
 # Permissões
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8000
 
+# ✅ Iniciar servidor
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
