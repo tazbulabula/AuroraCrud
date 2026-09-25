@@ -32,8 +32,8 @@ const Orders: React.FC = () => {
     const loadData = async () => {
         try {
             const [ordersRes, notifsRes] = await Promise.all([
-                api.get('/orders'),
-                api.get('/notifications'),
+                api.get('/api/orders'),
+                api.get('/api/notifications'),
             ]);
             setOrders(ordersRes.data);
             setNotifications(notifsRes.data);
@@ -46,7 +46,7 @@ const Orders: React.FC = () => {
 
     const handleConfirmOrder = async (orderId: number) => {
         try {
-            await api.post(`/orders/${orderId}/confirm`);
+            await api.post(`/api/orders/${orderId}/confirm`);
             await loadData();
         } catch (err) {
             console.error('Erro ao confirmar pedido:', err);
@@ -55,7 +55,7 @@ const Orders: React.FC = () => {
 
     const handleMarkRead = async (notificationId: number) => {
         try {
-            await api.post(`/notifications/${notificationId}/read`);
+            await api.post(`/api/notifications/${notificationId}/read`);
             await loadData();
         } catch (err) {
             console.error('Erro ao marcar notificação:', err);
