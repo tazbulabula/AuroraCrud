@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // ✅ Usar variável de ambiente
-const BASE_URL = 'http://localhost:8002';
-const PRODUCT_API_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`;
+const BASE_URL = import.meta.env.VITE_PRODUCT_API_URL || 'http://localhost:8002';
+const PRODUCT_API_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}`;
 
 console.log('🔍 PRODUCT_API_URL:', PRODUCT_API_URL);
 
