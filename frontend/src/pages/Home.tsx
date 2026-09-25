@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { authService } from '@/services/authService';
 import { productService } from '@/services/productService';
-import productApi from '@/services/productApi';
+import { orderService, Order } from '@/services/orderService';
 import { formatKwanza, formatDate, formatNumber } from '@/utils/format';
 
 interface DashboardStats {
@@ -19,15 +19,6 @@ interface DashboardStats {
   stockBaixo: number;
   stockTotal: number;
   valorInventario: number;
-}
-
-interface Order {
-  id: number;
-  buyer_name: string;
-  total_price: number;
-  status: string;
-  created_at: string;
-  product: { name: string; price: number };
 }
 
 interface TopProduct {
@@ -54,7 +45,6 @@ const Home: React.FC = () => {
     valorInventario: 0,
   });
   const [orders, setOrders] = useState<Order[]>([]);
-  const [, setProdutos] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState<'7d' | '30d' | '90d'>('30d');
@@ -67,15 +57,14 @@ const Home: React.FC = () => {
     try {
       setLoading(true);
 
+      // ✅ Usar orderService em vez de productApi
       const [produtosRes, ordersRes] = await Promise.allSettled([
         productService.listarTodos(),
-        productApi.get('/orders'),
+        orderService.listarTodos(),
       ]);
 
       const produtosData = produtosRes.status === 'fulfilled' ? produtosRes.value : [];
-      const pedidosData = ordersRes.status === 'fulfilled' ? ordersRes.value.data : [];
-
-      setProdutos(produtosData);
+      const pedidosData = ordersRes.status === 'fulfilled' ? ordersRes.value : [];
 
       // ===== CÁLCULOS FINANCEIROS =====
       const pedidosValidos = pedidosData.filter((o: Order) => o.status !== 'cancelled');

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import productApi from '@/services/productApi';
+import { orderService, CreateOrderDTO } from '@/services/orderService';
 import { formatKwanza } from '@/utils/format';
 
 interface Product {
@@ -15,17 +16,6 @@ interface Product {
     };
 }
 
-interface OrderData {
-    product_id: number;
-    buyer_name: string;
-    buyer_phone: string;
-    buyer_address: string;
-    buyer_email: string;
-    buyer_notes: string;
-    quantity: number;
-    guest_id: string;
-}
-
 const PublicProducts: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -35,8 +25,9 @@ const PublicProducts: React.FC = () => {
     const [orderResult, setOrderResult] = useState<any>(null);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
-    const [orderData, setOrderData] = useState<OrderData>({
+    const [orderData, setOrderData] = useState<CreateOrderDTO>({
         product_id: 0,
         buyer_name: '',
         buyer_phone: '',
@@ -54,8 +45,10 @@ const PublicProducts: React.FC = () => {
         setOrderData(prev => ({ ...prev, guest_id: guestId }));
     }, []);
 
+    // ✅ Carregar produtos (rota pública)
     const loadProducts = async () => {
         try {
+            setLoading(true);
             const response = await productApi.get('/products/public');
             setProducts(response.data);
         } catch (err) {
@@ -74,29 +67,48 @@ const PublicProducts: React.FC = () => {
     };
 
     const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setOrderData({ ...orderData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setOrderData({
+            ...orderData,
+            [name]: name === 'quantity' ? parseInt(value) || 1 : value,
+        });
     };
 
+    // ✅ Submeter pedido (usar orderService)
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSubmitting(true);
 
         try {
-            const response = await productApi.post('/orders', orderData);
+            // ✅ Usar o orderService em vez de productApi direto
+            const response = await orderService.criar(orderData);
+            
             setShowCheckout(false);
             setShowSuccess(true);
-            setOrderResult(response.data.order);
+            setOrderResult(response.order);
+            
+            // Recarregar produtos (para atualizar stock)
             loadProducts();
             
+            // Guardar no histórico local
             const savedOrders = JSON.parse(localStorage.getItem('guest_orders') || '[]');
             savedOrders.push({
-                tracking_code: response.data.order.tracking_code,
+                tracking_code: response.order.tracking_code,
                 product_name: selectedProduct?.name,
                 date: new Date().toISOString(),
             });
             localStorage.setItem('guest_orders', JSON.stringify(savedOrders));
+            
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Erro ao realizar pedido');
+            console.error('Erro ao criar pedido:', err);
+            setError(
+                err.response?.data?.error || 
+                err.response?.data?.message || 
+                'Erro ao realizar pedido. Tente novamente.'
+            );
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -143,13 +155,16 @@ const PublicProducts: React.FC = () => {
 
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <button
-                            onClick={() => setShowSuccess(false)}
+                            onClick={() => {
+                                setShowSuccess(false);
+                                setSelectedProduct(null);
+                            }}
                             className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg shadow-indigo-200"
                         >
                             Continuar a Comprar
                         </button>
                         <a
-                            href="/track"
+                            href={`/track/${orderResult.tracking_code}`}
                             className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:border-indigo-300 hover:text-indigo-600 transition-all duration-300 font-semibold"
                         >
                             Rastrear Pedido
@@ -421,9 +436,17 @@ const PublicProducts: React.FC = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 font-bold shadow-lg shadow-green-200 hover:shadow-green-300 hover:scale-[1.02]"
+                                disabled={submitting}
+                                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 font-bold shadow-lg shadow-green-200 hover:shadow-green-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                ✅ Confirmar Compra
+                                {submitting ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                        A processar...
+                                    </span>
+                                ) : (
+                                    '✅ Confirmar Compra'
+                                )}
                             </button>
                         </form>
                     </div>
