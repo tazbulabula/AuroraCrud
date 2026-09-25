@@ -224,7 +224,7 @@ const TrackOrder: React.FC = () => {
 
                                 {/* Steps */}
                                 <div className="relative flex justify-between">
-                                    {steps.map((step, index) => {
+                                    {steps.map((step, _) => {
                                         const isCompleted = (currentStatus?.step || 0) >= step.step;
                                         const isCurrent = currentStatus?.step === step.step;
                                         
