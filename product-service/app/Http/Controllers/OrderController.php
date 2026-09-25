@@ -82,7 +82,7 @@ class OrderController extends Controller
     public function trackOrder(Request $request, $trackingCode)
     {
         $order = Order::where('tracking_code', $trackingCode)
-            ->with(['product', 'user:id,name,email'])
+            ->with(['product'])
             ->first();
 
         if (!$order) {

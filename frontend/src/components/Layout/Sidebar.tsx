@@ -3,6 +3,21 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useAuth } from '@/hooks/useAuth';
 
+// ✅ Interfaces
+interface MenuItem {
+  path: string;
+  icon: string;
+  label: string;
+  show: boolean;
+  exact?: boolean;
+  disabled?: boolean;
+}
+
+interface MenuGroup {
+  title: string;
+  items: MenuItem[];
+}
+
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -13,8 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const { user } = useAuth();
   const location = useLocation();
 
-  // ✅ Estrutura de menu agrupada
-  const menuGroups = [
+  const menuGroups: MenuGroup[] = [
     {
       title: 'Principal',
       items: [
@@ -90,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <>
-      {/* ===== OVERLAY MOBILE ===== */}
+      {/* Overlay mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
@@ -98,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* ===== SIDEBAR ===== */}
+      {/* Sidebar */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
@@ -110,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           border-r border-gray-100
         `}
       >
-        {/* ===== LOGO ===== */}
+        {/* Logo */}
         <div className="flex-shrink-0 h-20 flex items-center justify-between px-6 border-b border-gray-100">
           <Link 
             to="/dashboard" 
@@ -130,7 +144,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
           </Link>
 
-          {/* Botão fechar (mobile) */}
           <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
@@ -142,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           </button>
         </div>
 
-        {/* ===== INFO DO USUÁRIO ===== */}
+        {/* Info do Utilizador */}
         {user && (
           <div className="flex-shrink-0 px-4 py-4 border-b border-gray-100">
             <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
@@ -169,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           </div>
         )}
 
-        {/* ===== MENU ===== */}
+        {/* Menu */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-6">
           {menuGroups.map((group, groupIndex) => {
             const visibleItems = group.items.filter(item => item.show);
@@ -177,12 +190,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
             return (
               <div key={groupIndex}>
-                {/* Título do Grupo */}
                 <p className="px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   {group.title}
                 </p>
 
-                {/* Items do Grupo */}
                 <div className="space-y-1">
                   {visibleItems.map((item) => {
                     const isActive = item.exact 
@@ -235,11 +246,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           })}
         </nav>
 
-        {/* ===== CARD DE SUPORTE ===== */}
+        {/* Card de Suporte */}
         <div className="flex-shrink-0 px-4 pb-4">
           <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-4 text-white shadow-lg">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLThoLTJ2LTRoMnY0em0wLThoLTJ2LTRoMnY0em0wLThoLTJ2LTRoMnY0ek0yNCAzNGgtMnYtNGgydjR6bTAtOGgtMnYtNGgydjR6bTAtOGgtMnYtNGgydjR6bTAtOGgtMnYtNGgydjR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
-
             <div className="relative">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3 border border-white/30">
                 <span className="text-xl">💡</span>
@@ -255,7 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           </div>
         </div>
 
-        {/* ===== FOOTER ===== */}
+        {/* Footer */}
         <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100">
           <div className="flex items-center justify-between text-[10px] text-gray-400">
             <span className="font-semibold">v1.0.0</span>
