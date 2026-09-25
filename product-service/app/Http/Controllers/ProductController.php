@@ -88,4 +88,13 @@ class ProductController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function listPublic(Request $request)
+    {
+        // ✅ Buscar todos os produtos com dados do usuário
+        $products = Product::orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($products);
+    }
 }

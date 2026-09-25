@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   toggleSidebar: () => void;
+  isGuest?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -15,10 +16,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
   const handleLogout = () => {
     authService.logout();
-    navigate('/login');
+    navigate('/');
   };
 
-  // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -29,6 +29,41 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // ✅ Se for guest (visitante), mostrar header diferente
+  if (isGuest) {
+    return (
+      <header className="bg-white shadow-md px-4 py-3 md:px-6 md:py-4 flex items-center justify-between sticky top-0 z-30">
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg md:text-xl font-semibold text-gray-800 truncate">
+            🛍️ Aurora CRUD
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            to="/track"
+            className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            📦 Rastrear Pedido
+          </Link>
+          <Link
+            to="/login"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+          >
+            Entrar
+          </Link>
+          <Link
+            to="/register"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+          >
+            Cadastrar
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
+  // ✅ Header para usuários logados
   return (
     <header className="bg-white shadow-md px-4 py-3 md:px-6 md:py-4 flex items-center justify-between sticky top-0 z-30">
       {/* Lado Esquerdo */}
@@ -43,14 +78,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           </svg>
         </button>
 
-        <h1 className="text-lg md:text-xl font-semibold text-gray-800 truncate">
-          Aurora CRUD
-        </h1>
+        <Link to="/dashboard" className="text-lg md:text-xl font-semibold text-gray-800 truncate hover:text-blue-600">
+          🚀 Aurora CRUD
+        </Link>
       </div>
 
       {/* Lado Direito - Dropdown do Usuário */}
       <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
-        {/* Dropdown do Usuário */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -72,29 +106,27 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             </svg>
           </button>
 
-          {/* Dropdown Menu */}
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-              {/* Informações do usuário */}
               <div className="px-4 py-3 border-b border-gray-200">
-                <p className="text-sm font-semibold text-gray-800 truncate">
-                  {user?.name}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {user?.email}
-                </p>
-                <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                  user?.role === 'ADMIN' 
-                    ? 'bg-purple-100 text-purple-800' 
-                    : 'bg-blue-100 text-blue-800'
-                }`}>
+                <p className="text-sm font-semibold text-gray-800 truncate">{user?.name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-full ${user?.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
                   {user?.role}
                 </span>
               </div>
 
-              {/* Links do Dropdown */}
               <Link
-                to="/profile"
+                to="/dashboard"
+                onClick={() => setDropdownOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-lg">📊</span>
+                Dashboard
+              </Link>
+
+              <Link
+                to="/dashboard/profile"
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
@@ -103,12 +135,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               </Link>
 
               <Link
-                to="/configuracoes"
+                to="/dashboard/pedidos"
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <span className="text-lg">⚙️</span>
-                Configurações
+                <span className="text-lg">📦</span>
+                Meus Pedidos
               </Link>
 
               <hr className="my-1 border-gray-200" />
@@ -124,7 +156,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           )}
         </div>
 
-        {/* Botão Logout (apenas mobile) */}
         <button
           onClick={handleLogout}
           className="lg:hidden px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
