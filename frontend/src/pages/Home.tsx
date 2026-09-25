@@ -54,7 +54,7 @@ const Home: React.FC = () => {
     valorInventario: 0,
   });
   const [orders, setOrders] = useState<Order[]>([]);
-  const [produtos, setProdutos] = useState<any[]>([]);
+  const [, setProdutos] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState<'7d' | '30d' | '90d'>('30d');
