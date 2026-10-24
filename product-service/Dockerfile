@@ -18,7 +18,7 @@ WORKDIR /var/www
 # Copiar arquivos
 COPY . .
 
-# ✅ Criar diretório de views
+#  Criar diretório de views
 RUN mkdir -p /var/www/resources/views
 
 # Instalar dependências

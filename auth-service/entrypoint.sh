@@ -13,14 +13,14 @@ echo "🧹 Limpando cache de configuração..."
 php artisan config:clear
 
 echo "📦 Executando migrations..."
-php artisan migrate:fresh --force
+php artisan migrate --force
 php artisan db:seed --force
 
 echo "🧹 Otimizando cache..."
 php artisan config:cache
 php artisan route:cache
 
-echo "✅ Setup concluído!"
+echo " Setup concluído!"
 
 echo "🚀 Iniciando servidor..."
 exec php artisan serve --host=0.0.0.0 --port=8000

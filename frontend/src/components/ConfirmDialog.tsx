@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {/* Ícone */}
         <div className="flex justify-center mb-4">
           <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-            <span className="text-3xl">⚠️</span>
+            <AlertTriangle aria-hidden="true" className="h-7 w-7 text-red-700" />
           </div>
         </div>
 

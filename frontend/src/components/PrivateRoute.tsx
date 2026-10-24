@@ -10,7 +10,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const isAuthenticated = authService.isAuthenticated();
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />; // ✅ Redireciona para a página pública
+    return <Navigate to="/" replace />; //  Redireciona para a página pública
   }
 
   return <>{children}</>;

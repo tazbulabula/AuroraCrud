@@ -3,6 +3,8 @@ import { orderService, notificationService, Order, Notification } from '@/servic
 import { formatKwanza, formatDate } from '@/utils/format';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useToast } from '@/components/contexts/ToastContext';
+import { Banknote, Bell, Check, CheckCircle2, ClipboardList, Clock3, FileText, Inbox, MapPin, Package, PackageCheck, Phone, Search, ShoppingCart, Truck, UserRound, XCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 const Orders: React.FC = () => {
     const { success, error: toastError } = useToast();
@@ -24,7 +26,7 @@ const Orders: React.FC = () => {
         loadData();
     }, []);
 
-    // ✅ Usar orderService e notificationService
+    //  Usar orderService e notificationService
     const loadData = async () => {
         try {
             setLoading(true);
@@ -42,7 +44,7 @@ const Orders: React.FC = () => {
         }
     };
 
-    // ✅ Confirmar pedido
+    //  Confirmar pedido
     const handleConfirmOrder = async (orderId: number) => {
         setConfirmDialog(prev => ({ ...prev, loading: true }));
         
@@ -58,7 +60,7 @@ const Orders: React.FC = () => {
         }
     };
 
-    // ✅ Marcar como entregue
+    //  Marcar como entregue
     const handleDeliverOrder = async (orderId: number) => {
         setConfirmDialog(prev => ({ ...prev, loading: true }));
         
@@ -74,7 +76,7 @@ const Orders: React.FC = () => {
         }
     };
 
-    // ✅ Marcar notificação como lida
+    //  Marcar notificação como lida
     const handleMarkRead = async (notificationId: number) => {
         try {
             await notificationService.marcarComoLida(notificationId);
@@ -84,7 +86,7 @@ const Orders: React.FC = () => {
         }
     };
 
-    // ✅ Marcar todas como lidas
+    //  Marcar todas como lidas
     const handleMarkAllRead = async () => {
         try {
             const unread = notifications.filter(n => !n.read);
@@ -103,7 +105,7 @@ const Orders: React.FC = () => {
         setConfirmDialog({ isOpen: true, orderId, action, loading: false });
     };
 
-    // ✅ Filtrar pedidos
+    //  Filtrar pedidos
     const filteredOrders = orders.filter(order => {
         const matchesFilter = filter === 'all' || order.status === filter;
         const matchesSearch = 
@@ -113,7 +115,7 @@ const Orders: React.FC = () => {
         return matchesFilter && matchesSearch;
     });
 
-    // ✅ Estatísticas
+    //  Estatísticas
     const stats = {
         total: orders.length,
         pending: orders.filter(o => o.status === 'pending').length,
@@ -126,11 +128,11 @@ const Orders: React.FC = () => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    const statusConfig: Record<string, { label: string; bg: string; text: string; icon: string }> = {
-        pending: { label: 'Pendente', bg: 'bg-amber-100', text: 'text-amber-800', icon: '⏳' },
-        confirmed: { label: 'Confirmado', bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '✅' },
-        delivered: { label: 'Entregue', bg: 'bg-blue-100', text: 'text-blue-800', icon: '📦' },
-        cancelled: { label: 'Cancelado', bg: 'bg-red-100', text: 'text-red-800', icon: '❌' },
+    const statusConfig: Record<string, { label: string; bg: string; text: string; icon: LucideIcon }> = {
+        pending: { label: 'Pendente', bg: 'bg-amber-100', text: 'text-amber-800', icon: Clock3 },
+        confirmed: { label: 'Confirmado', bg: 'bg-emerald-100', text: 'text-emerald-800', icon: CheckCircle2 },
+        delivered: { label: 'Entregue', bg: 'bg-blue-100', text: 'text-blue-800', icon: PackageCheck },
+        cancelled: { label: 'Cancelado', bg: 'bg-red-100', text: 'text-red-800', icon: XCircle },
     };
 
     if (loading) {
@@ -151,7 +153,7 @@ const Orders: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                        🛒 Gestão de Pedidos
+                        <span className="inline-flex items-center gap-2"><ShoppingCart aria-hidden="true" className="h-7 w-7 text-indigo-700" /> Gestão de Pedidos</span>
                     </h1>
                     <p className="text-gray-500 text-sm mt-1">
                         Acompanhe e gerencie todos os pedidos recebidos
@@ -163,7 +165,7 @@ const Orders: React.FC = () => {
                         onClick={handleMarkAllRead}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-semibold shadow-lg shadow-indigo-200 text-sm"
                     >
-                        🔔 Marcar todas como lidas ({unreadCount})
+                        <><Bell aria-hidden="true" className="h-4 w-4" /> Marcar todas como lidas ({unreadCount})</>
                     </button>
                 )}
             </div>
@@ -172,7 +174,7 @@ const Orders: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-md mb-3">
-                        <span className="text-lg">📋</span>
+                        <ClipboardList aria-hidden="true" className="h-5 w-5 text-white" />
                     </div>
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Total</p>
                     <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
@@ -180,7 +182,7 @@ const Orders: React.FC = () => {
 
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
                     <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md mb-3">
-                        <span className="text-lg">⏳</span>
+                        <Clock3 aria-hidden="true" className="h-5 w-5 text-white" />
                     </div>
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Pendentes</p>
                     <p className="text-2xl font-bold text-gray-800">{stats.pending}</p>
@@ -188,7 +190,7 @@ const Orders: React.FC = () => {
 
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
                     <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-md mb-3">
-                        <span className="text-lg">✅</span>
+                        <CheckCircle2 aria-hidden="true" className="h-5 w-5 text-white" />
                     </div>
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Confirmados</p>
                     <p className="text-2xl font-bold text-gray-800">{stats.confirmed}</p>
@@ -196,7 +198,7 @@ const Orders: React.FC = () => {
 
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md mb-3">
-                        <span className="text-lg">💰</span>
+                        <Banknote aria-hidden="true" className="h-5 w-5 text-white" />
                     </div>
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Faturamento</p>
                     <p className="text-lg font-bold text-emerald-600">
@@ -210,7 +212,7 @@ const Orders: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
                     <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                         <div>
-                            <h2 className="text-lg font-bold text-gray-800">🔔 Notificações</h2>
+                            <h2 className="inline-flex items-center gap-2 text-lg font-bold text-gray-800"><Bell aria-hidden="true" className="h-5 w-5 text-indigo-700" /> Notificações</h2>
                             <p className="text-sm text-gray-500">
                                 {unreadCount > 0 ? `${unreadCount} não lidas` : 'Todas lidas'}
                             </p>
@@ -257,7 +259,7 @@ const Orders: React.FC = () => {
                 <div className="flex flex-col md:flex-row gap-3">
                     <div className="relative flex-1">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                            🔍
+                            <Search aria-hidden="true" className="h-4 w-4" />
                         </span>
                         <input
                             type="text"
@@ -287,7 +289,7 @@ const Orders: React.FC = () => {
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
-                            ⏳ Pendentes ({stats.pending})
+                            <span className="inline-flex items-center gap-1"><Clock3 aria-hidden="true" className="h-4 w-4" /> Pendentes ({stats.pending})</span>
                         </button>
                         <button
                             onClick={() => setFilter('confirmed')}
@@ -297,7 +299,7 @@ const Orders: React.FC = () => {
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
-                            ✅ Confirmados ({stats.confirmed})
+                             Confirmados ({stats.confirmed})
                         </button>
                         <button
                             onClick={() => setFilter('delivered')}
@@ -307,7 +309,7 @@ const Orders: React.FC = () => {
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
-                            📦 Entregues ({stats.delivered})
+                            <span className="inline-flex items-center gap-1"><PackageCheck aria-hidden="true" className="h-4 w-4" /> Entregues ({stats.delivered})</span>
                         </button>
                     </div>
                 </div>
@@ -317,7 +319,7 @@ const Orders: React.FC = () => {
             {filteredOrders.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-12 text-center">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-4xl">📭</span>
+                        <Inbox aria-hidden="true" className="h-9 w-9 text-gray-400" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-700 mb-2">
                         {searchTerm || filter !== 'all' 
@@ -342,6 +344,7 @@ const Orders: React.FC = () => {
                 <div className="grid gap-4">
                     {filteredOrders.map((order) => {
                         const status = statusConfig[order.status] || statusConfig.pending;
+                        const StatusIcon = status.icon;
                         return (
                             <div
                                 key={order.id}
@@ -352,7 +355,7 @@ const Orders: React.FC = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start gap-3 mb-4">
                                             <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                                <span className="text-xl">📦</span>
+                                                <Package aria-hidden="true" className="h-5 w-5 text-indigo-700" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-lg text-gray-800 truncate">
@@ -366,20 +369,20 @@ const Orders: React.FC = () => {
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                             <div className="flex items-center gap-2 text-gray-600">
-                                                <span>👤</span>
+                                                <UserRound aria-hidden="true" className="h-4 w-4" />
                                                 <span className="truncate">{order.buyer_name}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-gray-600">
-                                                <span>📞</span>
+                                                <Phone aria-hidden="true" className="h-4 w-4" />
                                                 <span>{order.buyer_phone}</span>
                                             </div>
                                             <div className="flex items-start gap-2 text-gray-600 sm:col-span-2">
-                                                <span>📍</span>
+                                                <MapPin aria-hidden="true" className="h-4 w-4" />
                                                 <span className="flex-1">{order.buyer_address}</span>
                                             </div>
                                             {order.buyer_notes && (
                                                 <div className="flex items-start gap-2 text-amber-700 bg-amber-50 rounded-xl p-3 sm:col-span-2">
-                                                    <span>📝</span>
+                                                    <FileText aria-hidden="true" className="h-4 w-4" />
                                                     <span className="flex-1 text-sm">{order.buyer_notes}</span>
                                                 </div>
                                             )}
@@ -401,7 +404,7 @@ const Orders: React.FC = () => {
                                     {/* Status e Ações */}
                                     <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${status.bg} ${status.text}`}>
-                                            {status.icon} {status.label}
+                                            <StatusIcon aria-hidden="true" className="h-4 w-4" /> {status.label}
                                         </span>
 
                                         {order.status === 'pending' && (
@@ -409,7 +412,7 @@ const Orders: React.FC = () => {
                                                 onClick={() => openConfirmDialog(order.id, 'confirm')}
                                                 className="w-full md:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all text-sm font-semibold shadow-md shadow-emerald-200"
                                             >
-                                                ✅ Confirmar
+                                                <span className="inline-flex items-center gap-2"><Check aria-hidden="true" className="h-4 w-4" /> Confirmar</span>
                                             </button>
                                         )}
 
@@ -418,13 +421,13 @@ const Orders: React.FC = () => {
                                                 onClick={() => openConfirmDialog(order.id, 'deliver')}
                                                 className="w-full md:w-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all text-sm font-semibold shadow-md shadow-blue-200"
                                             >
-                                                📦 Marcar Entregue
+                                                <span className="inline-flex items-center gap-2"><Truck aria-hidden="true" className="h-4 w-4" /> Marcar entregue</span>
                                             </button>
                                         )}
 
                                         {order.status === 'delivered' && (
                                             <span className="text-xs text-emerald-600 font-semibold">
-                                                ✓ Concluído
+                                                <span className="inline-flex items-center gap-1"><Check aria-hidden="true" className="h-4 w-4" /> Concluído</span>
                                             </span>
                                         )}
                                     </div>

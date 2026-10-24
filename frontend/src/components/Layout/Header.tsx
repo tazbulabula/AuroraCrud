@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Bell, ChevronDown, LayoutDashboard, LogOut, Menu, Package, PackageCheck, Search, ShoppingBag, UserRound } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useAuth } from '@/hooks/useAuth';
 import productApi from '@/services/productApi';
+import BrandMark from '@/components/BrandMark';
+
+interface Notification {
+  id: number;
+  read: boolean;
+  created_at: string;
+  message: string;
+}
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -16,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -27,14 +36,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
     navigate('/');
   };
 
-  // ✅ Carregar notificações
+  //  Carregar notificações
   const loadNotifications = async () => {
     try {
-      const { data } = await productApi.get('/notifications');
+      const { data } = await productApi.get<Notification[]>('/notifications');
       setNotifications(data.slice(0, 5));
-      setUnreadCount(data.filter((n: any) => !n.read).length);
-    } catch (err) {
-      // Silencioso - pode falhar se não estiver logado
+      setUnreadCount(data.filter((notification) => !notification.read).length);
+    } catch (error) {
+      console.error('Erro ao carregar notificações:', error);
     }
   };
 
@@ -71,21 +80,19 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
   };
 
   // ============================================================
-  // ✅ HEADER PARA GUEST (Visitante)
+  //  HEADER PARA GUEST (Visitante)
   // ============================================================
   if (isGuest) {
     return (
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
         <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
-              <span className="text-xl">🛍️</span>
-            </div>
+            <BrandMark className="h-10 w-10 rounded-xl bg-indigo-700 text-white shadow-lg shadow-indigo-200 transition-transform group-hover:scale-105" />
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold text-gray-800 leading-tight">
-                Aurora<span className="text-indigo-600">Crud</span>
+                Mercado <span className="text-emerald-700">Aurora</span>
               </h1>
-              <p className="text-xs text-gray-500 leading-tight">Marketplace</p>
+              <p className="text-xs text-gray-500 leading-tight">Mercado digital</p>
             </div>
           </Link>
 
@@ -94,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
               to="/track"
               className="hidden md:flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-medium"
             >
-              📦 Rastrear
+              <PackageCheck aria-hidden="true" className="h-4 w-4" /> Rastrear
             </Link>
             <Link
               to="/login"
@@ -115,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
   }
 
   // ============================================================
-  // ✅ HEADER PARA USUÁRIO AUTENTICADO
+  //  HEADER PARA USUÁRIO AUTENTICADO
   // ============================================================
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-lg shadow-sm border-b border-gray-100">
@@ -129,9 +136,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
             className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors lg:hidden flex-shrink-0"
             aria-label="Toggle sidebar"
           >
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu aria-hidden="true" className="h-5 w-5 text-gray-700" />
           </button>
 
           {/* Logo */}
@@ -139,15 +144,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
             to="/dashboard" 
             className="hidden lg:flex items-center gap-2.5 flex-shrink-0 group"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200 group-hover:scale-105 transition-transform">
-              <span className="text-lg">🚀</span>
-            </div>
+            <BrandMark className="h-9 w-9 rounded-xl bg-indigo-700 text-white shadow-md shadow-indigo-200 transition-transform group-hover:scale-105" />
             <div>
               <h1 className="text-base font-bold text-gray-800 leading-tight">
-                Aurora<span className="text-indigo-600">Crud</span>
+                Mercado <span className="text-indigo-700">Aurora</span>
               </h1>
               <p className="text-[10px] text-gray-500 leading-tight uppercase tracking-wider font-semibold">
-                ERP System
+                Gestão de vendas
               </p>
             </div>
           </Link>
@@ -155,9 +158,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
           {/* Busca Global (Desktop) */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md ml-4">
             <div className="relative w-full">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                🔍
-              </span>
+              <Search aria-hidden="true" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchTerm}
@@ -181,9 +182,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
             className="md:hidden p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
             aria-label="Buscar"
           >
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search aria-hidden="true" className="h-5 w-5 text-gray-700" />
           </button>
 
           {/* Notificações */}
@@ -193,9 +192,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
               className="relative p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
               aria-label="Notificações"
             >
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
+              <Bell aria-hidden="true" className="h-5 w-5 text-gray-700" />
               {unreadCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md animate-pulse">
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -207,7 +204,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
               <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                   <div>
-                    <h3 className="font-bold text-gray-800 text-sm">🔔 Notificações</h3>
+                    <h3 className="font-bold text-gray-800 text-sm">Notificações</h3>
                     <p className="text-xs text-gray-500">{unreadCount} não lidas</p>
                   </div>
                   {unreadCount > 0 && (
@@ -221,7 +218,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center">
                       <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span className="text-2xl">🔕</span>
+                        <Bell aria-hidden="true" className="h-6 w-6 text-gray-400" />
                       </div>
                       <p className="text-sm text-gray-500">Sem notificações</p>
                     </div>
@@ -281,14 +278,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                   {user?.role === 'ADMIN' ? 'Vendedor' : 'Cliente'}
                 </p>
               </div>
-              <svg
-                className={`hidden md:block w-4 h-4 text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <ChevronDown aria-hidden="true" className={`hidden h-4 w-4 text-gray-400 transition-transform duration-200 md:block ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {dropdownOpen && (
@@ -311,7 +301,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                           ? 'bg-purple-100 text-purple-800' 
                           : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {user?.role === 'ADMIN' ? '🏪 VENDEDOR' : '🛒 CLIENTE'}
+                        {user?.role === 'ADMIN' ? 'VENDEDOR' : 'CLIENTE'}
                       </span>
                     </div>
                   </div>
@@ -325,7 +315,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors group"
                   >
                     <span className="w-8 h-8 bg-gray-100 group-hover:bg-indigo-100 rounded-lg flex items-center justify-center transition-colors">
-                      📊
+                      <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="font-medium">Dashboard</span>
                   </Link>
@@ -336,7 +326,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors group"
                   >
                     <span className="w-8 h-8 bg-gray-100 group-hover:bg-indigo-100 rounded-lg flex items-center justify-center transition-colors">
-                      👤
+                      <UserRound aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="font-medium">Meu Perfil</span>
                   </Link>
@@ -347,7 +337,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors group"
                   >
                     <span className="w-8 h-8 bg-gray-100 group-hover:bg-indigo-100 rounded-lg flex items-center justify-center transition-colors">
-                      📦
+                      <Package aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="font-medium">Meus Produtos</span>
                   </Link>
@@ -358,7 +348,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors group"
                   >
                     <span className="w-8 h-8 bg-gray-100 group-hover:bg-indigo-100 rounded-lg flex items-center justify-center transition-colors">
-                      🛒
+                      <ShoppingBag aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <div className="flex-1 flex items-center justify-between">
                       <span className="font-medium">Pedidos</span>
@@ -379,7 +369,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors group"
                 >
                   <span className="w-8 h-8 bg-red-50 group-hover:bg-red-100 rounded-lg flex items-center justify-center transition-colors">
-                    🚪
+                    <LogOut aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span className="font-semibold">Terminar Sessão</span>
                 </button>
@@ -394,9 +384,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isGuest = false }) => {
         <div className="md:hidden px-4 pb-4 border-t border-gray-100 bg-white">
           <form onSubmit={handleSearch} className="mt-3">
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                🔍
-              </span>
+              <Search aria-hidden="true" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchTerm}

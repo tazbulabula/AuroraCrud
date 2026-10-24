@@ -69,6 +69,7 @@ export interface Produto {
   price: number;
   stock: number;
   user_id: number;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +79,7 @@ export interface CreateProdutoDTO {
   description?: string;
   price: number;
   stock: number;
+  image?: File | null;
 }
 
 export interface UpdateProdutoDTO {
@@ -85,6 +87,8 @@ export interface UpdateProdutoDTO {
   description?: string;
   price?: number;
   stock?: number;
+  image?: File | null;
+  remove_image?: boolean;
 }
 
 export interface ProdutoFilterParams {

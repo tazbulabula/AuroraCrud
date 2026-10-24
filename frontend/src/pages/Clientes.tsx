@@ -8,6 +8,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/contexts/ToastContext';
 import { formatDate } from '@/utils/format';
+import { AlertCircle, ClipboardList, Pencil, Plus, Search, ShieldCheck, ShoppingBag, Sparkles, Store, Trash2, UsersRound } from 'lucide-react';
 
 const Clientes: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Clientes: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // ✅ Filtros e Busca
+  //  Filtros e Busca
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'ADMIN' | 'CLIENT'>('ALL');
   
@@ -57,7 +58,7 @@ const Clientes: React.FC = () => {
       setClientes(data);
       setError(null);
     } catch (err) {
-      console.error('❌ Erro ao carregar clientes:', err);
+      console.error('Erro ao carregar clientes:', err);
       setError('Erro ao carregar clientes');
       toastError('Erro ao carregar a lista de clientes');
     } finally {
@@ -151,7 +152,7 @@ const Clientes: React.FC = () => {
     }
   };
 
-  // ✅ Filtragem
+  //  Filtragem
   const filteredClientes = useMemo(() => {
     return clientes.filter(cliente => {
       const matchSearch = 
@@ -164,7 +165,7 @@ const Clientes: React.FC = () => {
     });
   }, [clientes, searchTerm, roleFilter]);
 
-  // ✅ Estatísticas
+  //  Estatísticas
   const stats = useMemo(() => {
     const total = clientes.length;
     const admins = clientes.filter(c => c.role === 'ADMIN').length;
@@ -196,7 +197,7 @@ const Clientes: React.FC = () => {
   if (error) {
     return (
       <div className="bg-red-50 border-2 border-red-200 text-red-700 p-6 rounded-2xl text-center">
-        <span className="text-3xl block mb-2">❌</span>
+        <AlertCircle aria-hidden="true" className="mx-auto mb-2 h-8 w-8 text-red-700" />
         <p className="font-semibold">{error}</p>
         <button
           onClick={carregarClientes}
@@ -216,11 +217,11 @@ const Clientes: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-              👑 ADMIN
+              <ShieldCheck aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" /> ADMIN
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            👥 Gestão de Clientes
+            <span className="inline-flex items-center gap-2"><UsersRound aria-hidden="true" className="h-7 w-7 text-indigo-700" /> Gestão de Clientes</span>
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             Gerencie todos os utilizadores do sistema
@@ -232,7 +233,7 @@ const Clientes: React.FC = () => {
             onClick={handleNovoCliente}
             className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:scale-105"
           >
-            <span className="text-lg">➕</span>
+            <Plus aria-hidden="true" className="h-5 w-5" />
             Novo Cliente
           </button>
         )}
@@ -243,7 +244,7 @@ const Clientes: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-lg">👥</span>
+              <UsersRound aria-hidden="true" className="h-5 w-5 text-white" />
             </div>
           </div>
           <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Total</p>
@@ -253,7 +254,7 @@ const Clientes: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-lg">🏪</span>
+              <Store aria-hidden="true" className="h-5 w-5 text-white" />
             </div>
           </div>
           <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Vendedores</p>
@@ -263,7 +264,7 @@ const Clientes: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-lg">🛒</span>
+              <ShoppingBag aria-hidden="true" className="h-5 w-5 text-white" />
             </div>
           </div>
           <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Clientes</p>
@@ -273,7 +274,7 @@ const Clientes: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-lg">✨</span>
+              <Sparkles aria-hidden="true" className="h-5 w-5 text-white" />
             </div>
             <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
               +{stats.novosEsteMes}
@@ -290,7 +291,7 @@ const Clientes: React.FC = () => {
           {/* Busca */}
           <div className="relative flex-1">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              🔍
+              <Search aria-hidden="true" className="h-4 w-4" />
             </span>
             <input
               type="text"
@@ -321,7 +322,7 @@ const Clientes: React.FC = () => {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              🏪 Vendedores
+              <span className="inline-flex items-center gap-1"><Store aria-hidden="true" className="h-4 w-4" /> Vendedores</span>
             </button>
             <button
               onClick={() => setRoleFilter('CLIENT')}
@@ -331,7 +332,7 @@ const Clientes: React.FC = () => {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              🛒 Clientes
+              <span className="inline-flex items-center gap-1"><ShoppingBag aria-hidden="true" className="h-4 w-4" /> Clientes</span>
             </button>
           </div>
         </div>
@@ -342,7 +343,7 @@ const Clientes: React.FC = () => {
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
             <h2 className="text-lg font-bold text-gray-800">
-              📋 Lista de Utilizadores
+              <span className="inline-flex items-center gap-2"><ClipboardList aria-hidden="true" className="h-5 w-5 text-indigo-700" /> Lista de Utilizadores</span>
             </h2>
             <p className="text-sm text-gray-500">
               {filteredClientes.length} de {clientes.length} utilizador(es)
@@ -378,7 +379,7 @@ const Clientes: React.FC = () => {
                 <tr>
                   <td colSpan={canEditClientes() ? 5 : 4} className="text-center py-12">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-3xl">🔍</span>
+                      <Search aria-hidden="true" className="h-7 w-7 text-gray-400" />
                     </div>
                     <p className="text-gray-500 font-medium">
                       {searchTerm || roleFilter !== 'ALL'
@@ -429,7 +430,7 @@ const Clientes: React.FC = () => {
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {cliente.role === 'ADMIN' ? '🏪 Vendedor' : '🛒 Cliente'}
+                        {cliente.role === 'ADMIN' ? <><Store aria-hidden="true" className="h-3.5 w-3.5" /> Vendedor</> : <><ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" /> Cliente</>}
                       </span>
                     </td>
                     <td className="py-4 px-6 hidden md:table-cell">
@@ -445,14 +446,14 @@ const Clientes: React.FC = () => {
                             className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
                             title="Editar"
                           >
-                            ✏️
+                            <Pencil aria-hidden="true" className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleConfirmarDeletar(cliente.id, cliente.name)}
                             className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                             title="Eliminar"
                           >
-                            🗑️
+                            <Trash2 aria-hidden="true" className="h-4 w-4" />
                           </button>
                         </div>
                       </td>

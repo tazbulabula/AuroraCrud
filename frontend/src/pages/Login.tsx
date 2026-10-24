@@ -1,6 +1,8 @@
 import { authService } from '@/services/authService';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AlertTriangle, ArrowRight, Banknote, Bell, Eye, EyeOff, LockKeyhole, Mail, MapPin, Package } from 'lucide-react';
+import BrandMark from '@/components/BrandMark';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -41,11 +43,9 @@ const Login: React.FC = () => {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-              <span className="text-2xl">🛍️</span>
-            </div>
+            <BrandMark className="h-12 w-12 rounded-xl border border-white/30 bg-white/15 text-white backdrop-blur-sm" iconClassName="h-6 w-6" />
             <div>
-              <h1 className="text-xl font-bold">AuroraCrud</h1>
+              <h1 className="text-xl font-bold">Mercado Aurora</h1>
               <p className="text-xs text-white/70">Marketplace</p>
             </div>
           </Link>
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
           {/* Conteúdo Central */}
           <div className="max-w-md">
             <h2 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-              Bem-vindo de volta! 👋
+              Bem-vindo de volta
             </h2>
             <p className="text-lg text-white/90 mb-8 leading-relaxed">
               Gerencie os seus produtos, acompanhe os seus pedidos e receba
@@ -64,7 +64,7 @@ const Login: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <span className="text-xl">📦</span>
+                  <Package aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Gestão de Produtos</p>
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <span className="text-xl">🔔</span>
+                  <Bell aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Notificações em Tempo Real</p>
@@ -84,11 +84,11 @@ const Login: React.FC = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <span className="text-xl">💰</span>
+                  <Banknote aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Preços em Kwanza</p>
-                  <p className="text-sm text-white/70">Adaptado para Angola 🇦🇴</p>
+                  <p className="flex items-center gap-1.5 text-sm text-white/70"><MapPin aria-hidden="true" className="h-3.5 w-3.5" /> Adaptado para Angola</p>
                 </div>
               </div>
             </div>
@@ -96,7 +96,7 @@ const Login: React.FC = () => {
 
           {/* Footer */}
           <div className="text-sm text-white/60">
-            <p>© {new Date().getFullYear()} AuroraCrud. Todos os direitos reservados.</p>
+            <p>© {new Date().getFullYear()} Mercado Aurora. Todos os direitos reservados.</p>
           </div>
         </div>
       </div>
@@ -108,12 +108,10 @@ const Login: React.FC = () => {
           {/* Logo Mobile */}
           <div className="lg:hidden flex justify-center mb-8">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                <span className="text-2xl">🛍️</span>
-              </div>
+              <BrandMark className="h-12 w-12 rounded-xl bg-indigo-700 text-white shadow-lg shadow-indigo-200" iconClassName="h-6 w-6" />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">
-                  Aurora<span className="text-indigo-600">Crud</span>
+                  Mercado <span className="text-emerald-700">Aurora</span>
                 </h1>
                 <p className="text-xs text-gray-500">Marketplace</p>
               </div>
@@ -137,7 +135,7 @@ const Login: React.FC = () => {
               {/* Erro */}
               {erro && (
                 <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl animate-shake">
-                  <span className="text-xl">⚠️</span>
+                  <AlertTriangle aria-hidden="true" className="h-5 w-5 shrink-0 text-red-600" />
                   <p className="text-sm text-red-700 font-medium flex-1">{erro}</p>
                 </div>
               )}
@@ -148,9 +146,7 @@ const Login: React.FC = () => {
                   Email
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    📧
-                  </span>
+                  <Mail aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type="email"
                     value={email}
@@ -177,9 +173,7 @@ const Login: React.FC = () => {
                   </a>
                 </div>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    🔒
-                  </span>
+                  <LockKeyhole aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={senha}
@@ -195,7 +189,7 @@ const Login: React.FC = () => {
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label={showPassword ? 'Esconder senha' : 'Mostrar senha'}
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
@@ -225,7 +219,7 @@ const Login: React.FC = () => {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    Entrar <span>→</span>
+                    Entrar <ArrowRight aria-hidden="true" className="h-4 w-4" />
                   </span>
                 )}
               </button>
@@ -248,7 +242,7 @@ const Login: React.FC = () => {
               to="/register"
               className="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-gray-200 rounded-2xl text-gray-700 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/50 transition-all duration-300 font-semibold"
             >
-              ✨ Criar uma conta nova
+              Criar uma conta nova
             </Link>
           </div>
 

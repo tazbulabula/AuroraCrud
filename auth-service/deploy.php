@@ -7,10 +7,10 @@ $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
 // Executar migrations
 $kernel->call('migrate', ['--force' => true]);
-echo "✅ Migrations executadas!\n";
+echo " Migrations executadas!\n";
 
 // Executar seed (opcional)
 $kernel->call('db:seed', ['--force' => true]);
-echo "✅ Seed executado!\n";
+echo " Seed executado!\n";
 
 echo "🚀 Deploy concluído!\n";

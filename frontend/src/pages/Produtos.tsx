@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '@/services/productService';
-import type { Produto, CreateProdutoDTO, UpdateProdutoDTO } from '@/types';
+import type { Produto, CreateProdutoDTO } from '@/types';
 
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useToast } from '@/components/contexts/ToastContext';
+import { ImagePlus, Package, Pencil, Plus, Save, Trash2, X } from 'lucide-react';
 
 const Produtos: React.FC = () => {
   const { success, error: toastError } = useToast();
@@ -15,12 +16,15 @@ const Produtos: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null);
-  const [formData, setFormData] = useState<CreateProdutoDTO | UpdateProdutoDTO>({
+  const [formData, setFormData] = useState<CreateProdutoDTO>({
     name: '',
     description: '',
     price: 0,
     stock: 0,
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
   
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -48,6 +52,7 @@ const Produtos: React.FC = () => {
     setProdutoEditando(null);
     setModalTitle('Novo Produto');
     setFormData({ name: '', description: '', price: 0, stock: 0 });
+    resetPhoto();
     setModalOpen(true);
   };
 
@@ -60,7 +65,49 @@ const Produtos: React.FC = () => {
       price: produto.price,
       stock: produto.stock,
     });
+    resetPhoto(produto.image_url);
     setModalOpen(true);
+  };
+
+  const resetPhoto = (preview: string | null = null) => {
+    if (imagePreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setSelectedImage(null);
+    setImagePreview(preview);
+    setRemoveImage(false);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const image = e.target.files?.[0] ?? null;
+    if (!image) return;
+
+    if (image.size > 5 * 1024 * 1024) {
+      e.target.value = '';
+      toastError('A imagem deve ter no máximo 5 MB');
+      return;
+    }
+
+    if (imagePreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setSelectedImage(image);
+    setImagePreview(URL.createObjectURL(image));
+    setRemoveImage(false);
+  };
+
+  const handleRemoverImagem = () => {
+    if (imagePreview?.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setSelectedImage(null);
+    setImagePreview(null);
+    setRemoveImage(Boolean(produtoEditando?.image_url));
+  };
+
+  const handleFecharModal = () => {
+    resetPhoto();
+    setModalOpen(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -77,14 +124,22 @@ const Produtos: React.FC = () => {
 
     try {
       if (produtoEditando) {
-        const produtoAtualizado = await productService.atualizar(produtoEditando.id, formData);
+        const produtoAtualizado = await productService.atualizar(produtoEditando.id, {
+          ...formData,
+          image: selectedImage,
+          remove_image: removeImage,
+        });
         setProdutos(prev => prev.map(p => p.id === produtoEditando.id ? { ...p, ...produtoAtualizado } : p));
         success(`Produto "${formData.name}" atualizado com sucesso!`);
       } else {
-        const novoProduto = await productService.criar(formData as CreateProdutoDTO);
+        const novoProduto = await productService.criar({
+          ...formData,
+          image: selectedImage,
+        });
         setProdutos(prev => [...prev, novoProduto]);
         success(`Produto "${formData.name}" criado com sucesso!`);
       }
+      resetPhoto();
       setModalOpen(false);
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
@@ -135,11 +190,11 @@ const Produtos: React.FC = () => {
     <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100/50">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">📦 Produtos</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-800"><Package aria-hidden="true" className="h-6 w-6 text-indigo-700" /> Produtos</h1>
           <p className="text-gray-600 text-sm">Total: {produtos.length} produtos cadastrados</p>
         </div>
-        <button onClick={handleNovoProduto} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-          <span>➕</span> Novo Produto
+        <button onClick={handleNovoProduto} className="inline-flex items-center gap-2 rounded-xl bg-indigo-700 px-4 py-2 font-semibold text-white transition-colors hover:bg-indigo-800">
+          <Plus aria-hidden="true" className="h-4 w-4" /> Novo produto
         </button>
       </div>
 
@@ -147,6 +202,7 @@ const Produtos: React.FC = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Imagem</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Nome</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
@@ -157,10 +213,17 @@ const Produtos: React.FC = () => {
           </thead>
           <tbody>
             {produtos.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-8 text-gray-500">Nenhum produto cadastrado</td></tr>
+              <tr><td colSpan={7} className="text-center py-8 text-gray-500">Nenhum produto cadastrado</td></tr>
             ) : (
               produtos.map((produto) => (
                 <tr key={produto.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4">
+                    {produto.image_url ? (
+                      <img src={produto.image_url} alt={produto.name} className="h-12 w-12 rounded-lg object-cover" />
+                    ) : (
+                      <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100"><Package aria-hidden="true" className="h-5 w-5 text-gray-400" /></span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-sm text-gray-900">{produto.id}</td>
                   <td className="py-3 px-4 text-sm font-medium text-gray-900">{produto.name}</td>
                   <td className="py-3 px-4 text-sm text-gray-600">{produto.description || '-'}</td>
@@ -175,8 +238,8 @@ const Produtos: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <button onClick={() => handleEditar(produto)} className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3 transition-colors">✏️ Editar</button>
-                    <button onClick={() => handleConfirmarDeletar(produto.id, produto.name)} className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">🗑️ Excluir</button>
+                    <button onClick={() => handleEditar(produto)} className="mr-3 inline-flex items-center gap-1 text-sm font-medium text-indigo-700 transition-colors hover:text-indigo-900"><Pencil aria-hidden="true" className="h-4 w-4" /> Editar</button>
+                    <button onClick={() => handleConfirmarDeletar(produto.id, produto.name)} className="inline-flex items-center gap-1 text-sm font-medium text-red-600 transition-colors hover:text-red-800"><Trash2 aria-hidden="true" className="h-4 w-4" /> Excluir</button>
                   </td>
                 </tr>
               ))
@@ -190,9 +253,30 @@ const Produtos: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-800">{modalTitle}</h2>
-              <button onClick={() => setModalOpen(false)} className="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+              <button onClick={handleFecharModal} aria-label="Fechar" className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"><X aria-hidden="true" className="h-5 w-5" /></button>
             </div>
             <form onSubmit={handleSalvar}>
+              <div className="mb-4">
+                <label htmlFor="product-image" className="block text-gray-700 text-sm font-bold mb-2">Foto do produto</label>
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Pré-visualização do produto" className="mb-3 h-40 w-full rounded-lg bg-gray-100 object-contain" />
+                ) : (
+                  <div className="mb-3 flex h-32 items-center justify-center rounded-lg bg-gray-100"><ImagePlus aria-hidden="true" className="h-8 w-8 text-gray-400" /></div>
+                )}
+                <input
+                  id="product-image"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
+                />
+                <p className="mt-1 text-xs text-gray-500">JPEG, PNG ou WebP; máximo de 5 MB.</p>
+                {imagePreview && (
+                  <button type="button" onClick={handleRemoverImagem} className="mt-2 text-sm text-red-600 hover:text-red-800">
+                    Remover foto
+                  </button>
+                )}
+              </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Nome *</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do produto" required />
@@ -212,8 +296,8 @@ const Produtos: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancelar</button>
-                <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">{loading ? 'Salvando...' : 'Salvar'}</button>
+                <button type="button" onClick={handleFecharModal} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancelar</button>
+                <button type="submit" disabled={loading} className="flex-1 rounded-xl bg-indigo-700 px-4 py-2 font-semibold text-white transition-colors hover:bg-indigo-800 disabled:opacity-50">{loading ? 'A guardar...' : <><Save aria-hidden="true" className="mr-2 inline h-4 w-4" /> Guardar</>}</button>
               </div>
             </form>
           </div>

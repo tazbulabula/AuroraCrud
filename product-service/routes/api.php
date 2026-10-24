@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Middleware\AuthenticateWithAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,11 +14,15 @@ use Illuminate\Support\Facades\Route;
 
 // Produtos públicos
 Route::get('/products/public', [ProductController::class, 'listPublic']);
+Route::get('/products/landing', [ProductController::class, 'landing']);
+Route::get('/products/showcase/images/{category}/{filename}', [ProductController::class, 'showcaseImage'])
+    ->name('products.showcase.image');
+Route::get('/products/{id}/image', [ProductController::class, 'image'])->name('products.image');
 
 // Criar pedido (guest)
 Route::post('/orders', [OrderController::class, 'store']);
 
-// ✅ Rastrear pedido (guest) - CORRIGIDO
+// Rastrear pedido (guest) - CORRIGIDO
 Route::get('/orders/track/{trackingCode}', [OrderController::class, 'trackOrder']);
 
 /*
@@ -25,7 +30,7 @@ Route::get('/orders/track/{trackingCode}', [OrderController::class, 'trackOrder'
 | ROTAS PROTEGIDAS (Requerem autenticação)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:api'])->group(function () {
+Route::middleware([AuthenticateWithAuthService::class])->group(function () {
 
     // ===== PRODUTOS =====
     Route::prefix('products')->group(function () {

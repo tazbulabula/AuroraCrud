@@ -3,13 +3,14 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { useAuth } from '@/hooks/useAuth';
+import { Banknote, MapPin } from 'lucide-react';
 
 const Layout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#f6f8f5]">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
@@ -31,20 +32,22 @@ const Layout: React.FC = () => {
         </main>
 
         {/* Footer ERP */}
-        <footer className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-t border-gray-100 px-6 py-3">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+        <footer className="flex-shrink-0 border-t border-stone-200 bg-white px-6 py-3">
+          <div className="flex flex-col items-center justify-between gap-2 text-xs text-stone-500 md:flex-row">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span className="font-medium text-gray-600">Sistema Online</span>
+                <span className="font-medium text-stone-600">Sistema online</span>
               </span>
               <span className="hidden md:inline">·</span>
-              <span className="hidden md:inline">AuroraCrud ERP v1.0.0</span>
+              <span className="hidden md:inline">Mercado Aurora · Área de gestão</span>
             </div>
 
-            <div className="flex items-center gap-4">
-              <span>🇦🇴 Angola</span>
+            <div className="flex items-center gap-2">
+              <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
+              <span>Angola</span>
               <span>·</span>
+              <Banknote aria-hidden="true" className="h-3.5 w-3.5" />
               <span>Preços em Kwanza (Kz)</span>
             </div>
           </div>

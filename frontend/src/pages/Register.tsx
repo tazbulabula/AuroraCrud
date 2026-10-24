@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { clienteService } from '@/services/clienteService';
+import { authService } from '@/services/authService';
+import { AlertTriangle, ArrowRight, Banknote, Bell, Eye, EyeOff, LockKeyhole, Mail, Package, ShieldCheck, ShoppingBag, Store, UserRound } from 'lucide-react';
+import BrandMark from '@/components/BrandMark';
 
 interface RegisterFormData {
   name: string;
@@ -77,24 +79,23 @@ const Register: React.FC = () => {
     }
 
     try {
-      await clienteService.registrar({
+      await authService.register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
 
-      // ✅ Redirecionar para login com mensagem de sucesso
-      navigate('/login', {
-        state: { message: 'Conta criada com sucesso! Faça login para continuar.' }
-      });
-    } catch (error: any) {
+      await authService.login(formData.email, formData.password);
+      navigate('/');
+    } catch (error: unknown) {
       console.error(error);
-      setErro(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Erro ao criar conta. Tente novamente.'
-      );
+      const message = typeof error === 'object' && error !== null && 'message' in error
+        ? error.message
+        : null;
+      setErro(typeof message === 'string' && message
+        ? message
+        : 'Erro ao criar conta. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -110,11 +111,9 @@ const Register: React.FC = () => {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-              <span className="text-2xl">🛍️</span>
-            </div>
+            <BrandMark className="h-12 w-12 rounded-xl border border-white/30 bg-white/15 text-white backdrop-blur-sm" iconClassName="h-6 w-6" />
             <div>
-              <h1 className="text-xl font-bold">AuroraCrud</h1>
+              <h1 className="text-xl font-bold">Mercado Aurora</h1>
               <p className="text-xs text-white/70">Marketplace</p>
             </div>
           </Link>
@@ -122,7 +121,7 @@ const Register: React.FC = () => {
           {/* Conteúdo Central */}
           <div className="max-w-md">
             <h2 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-              Comece a vender hoje! 🚀
+              Comece a vender hoje
             </h2>
             <p className="text-lg text-white/90 mb-8 leading-relaxed">
               Crie a sua conta gratuitamente e comece a vender os seus produtos
@@ -133,7 +132,7 @@ const Register: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">✅</span>
+                  <span className="text-xl"></span>
                 </div>
                 <div>
                   <p className="font-semibold">100% Gratuito</p>
@@ -143,7 +142,7 @@ const Register: React.FC = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">📦</span>
+                  <Package aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Venda os seus produtos</p>
@@ -153,7 +152,7 @@ const Register: React.FC = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">💰</span>
+                  <Banknote aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Receba em Kwanza</p>
@@ -163,7 +162,7 @@ const Register: React.FC = () => {
 
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">🔔</span>
+                  <Bell aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold">Notificações instantâneas</p>
@@ -175,7 +174,7 @@ const Register: React.FC = () => {
 
           {/* Footer */}
           <div className="text-sm text-white/60">
-            <p>© {new Date().getFullYear()} AuroraCrud. Todos os direitos reservados.</p>
+            <p>© {new Date().getFullYear()} Mercado Aurora. Todos os direitos reservados.</p>
           </div>
         </div>
       </div>
@@ -187,12 +186,10 @@ const Register: React.FC = () => {
           {/* Logo Mobile */}
           <div className="lg:hidden flex justify-center mb-8">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                <span className="text-2xl">🛍️</span>
-              </div>
+              <BrandMark className="h-12 w-12 rounded-xl bg-indigo-700 text-white shadow-lg shadow-indigo-200" iconClassName="h-6 w-6" />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">
-                  Aurora<span className="text-indigo-600">Crud</span>
+                  Mercado <span className="text-emerald-700">Aurora</span>
                 </h1>
                 <p className="text-xs text-gray-500">Marketplace</p>
               </div>
@@ -216,7 +213,7 @@ const Register: React.FC = () => {
               {/* Erro */}
               {erro && (
                 <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl animate-shake">
-                  <span className="text-xl">⚠️</span>
+                  <AlertTriangle aria-hidden="true" className="h-5 w-5 shrink-0 text-red-600" />
                   <p className="text-sm text-red-700 font-medium flex-1">{erro}</p>
                 </div>
               )}
@@ -227,9 +224,7 @@ const Register: React.FC = () => {
                   Nome Completo
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    👤
-                  </span>
+                  <UserRound aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     name="name"
@@ -249,9 +244,7 @@ const Register: React.FC = () => {
                   Email
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    📧
-                  </span>
+                  <Mail aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type="email"
                     name="email"
@@ -280,7 +273,7 @@ const Register: React.FC = () => {
                         : 'border-gray-200 hover:border-indigo-300 bg-white'
                     }`}
                   >
-                    <span className="text-2xl block mb-1">🛒</span>
+                    <ShoppingBag aria-hidden="true" className="mb-2 h-6 w-6 text-indigo-700" />
                     <p className="font-semibold text-sm text-gray-800">Cliente</p>
                     <p className="text-xs text-gray-500">Comprar produtos</p>
                   </button>
@@ -293,7 +286,7 @@ const Register: React.FC = () => {
                         : 'border-gray-200 hover:border-indigo-300 bg-white'
                     }`}
                   >
-                    <span className="text-2xl block mb-1">🏪</span>
+                    <Store aria-hidden="true" className="mb-2 h-6 w-6 text-indigo-700" />
                     <p className="font-semibold text-sm text-gray-800">Vendedor</p>
                     <p className="text-xs text-gray-500">Vender produtos</p>
                   </button>
@@ -306,9 +299,7 @@ const Register: React.FC = () => {
                   Senha
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    🔒
-                  </span>
+                  <LockKeyhole aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
@@ -326,7 +317,7 @@ const Register: React.FC = () => {
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label={showPassword ? 'Esconder senha' : 'Mostrar senha'}
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                   </button>
                 </div>
 
@@ -363,9 +354,7 @@ const Register: React.FC = () => {
                   Confirmar Senha
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                    🔐
-                  </span>
+                  <ShieldCheck aria-hidden="true" className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="password_confirmation"
@@ -388,7 +377,7 @@ const Register: React.FC = () => {
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label={showConfirmPassword ? 'Esconder senha' : 'Mostrar senha'}
                   >
-                    {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                    {showConfirmPassword ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                   </button>
                 </div>
 
@@ -399,8 +388,8 @@ const Register: React.FC = () => {
                       : 'text-red-600'
                   }`}>
                     {formData.password === formData.password_confirmation
-                      ? '✅ As senhas coincidem'
-                      : '❌ As senhas não coincidem'}
+                      ? 'As senhas coincidem'
+                      : 'As senhas não coincidem'}
                   </p>
                 )}
               </div>
@@ -435,7 +424,7 @@ const Register: React.FC = () => {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    ✨ Criar Conta
+                    Criar Conta <ArrowRight aria-hidden="true" className="h-4 w-4" />
                   </span>
                 )}
               </button>
@@ -458,7 +447,7 @@ const Register: React.FC = () => {
               to="/login"
               className="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-gray-200 rounded-2xl text-gray-700 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/50 transition-all duration-300 font-semibold"
             >
-              🔑 Já tenho conta
+              Já tenho conta
             </Link>
           </div>
 

@@ -5,7 +5,7 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 FROM php:8.4-fpm
 
-# ✅ Adicionar libicu-dev para a extensão intl
+#  Adicionar libicu-dev para a extensão intl
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     libicu-dev \
-    && docker-php-ext-install pdo_pgsql zip intl
+    && docker-php-ext-install pdo_mysql pdo_pgsql zip intl
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -26,7 +26,7 @@ COPY . .
 # Copiar vendor
 COPY --from=build /app/vendor ./vendor
 
-# ✅ Executar scripts
+#  Executar scripts
 RUN composer run-script post-autoload-dump || true
 
 # Criar diretórios

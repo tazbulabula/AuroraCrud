@@ -16,18 +16,18 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('user_id')->constrained('users'); // Vendedor
             
-            // ✅ Dados do comprador (guest)
+            //  Dados do comprador (guest)
             $table->string('buyer_name');
             $table->string('buyer_phone');
             $table->string('buyer_address');
             $table->string('buyer_email')->nullable();
             $table->text('buyer_notes')->nullable();
             
-            // ✅ Identificação do guest
+            //  Identificação do guest
             $table->string('guest_id')->nullable();
             $table->boolean('is_guest')->default(true);
             
-            // ✅ Código de rastreio
+            //  Código de rastreio
             $table->string('tracking_code')->unique();
             
             $table->integer('quantity')->default(1);

@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 import api from '@/services/api';
 import { useToast } from '@/components/contexts/ToastContext';
+import { KeyRound, Pencil, Save, UserRound } from 'lucide-react';
 
 const Profile: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -76,15 +77,15 @@ const Profile: React.FC = () => {
       <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100/50">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">👤 Meu Perfil</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-800"><UserRound aria-hidden="true" className="h-6 w-6 text-indigo-700" /> O meu perfil</h1>
             <p className="text-gray-600 text-sm">Gerencie suas informações pessoais</p>
           </div>
           <div className="flex items-center gap-3">
             <span className={`px-3 py-1 text-xs font-semibold rounded-full ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
               {user.role}
             </span>
-            <button onClick={() => setEditMode(!editMode)} className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
-              {editMode ? 'Cancelar' : '✏️ Editar'}
+            <button onClick={() => setEditMode(!editMode)} className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-3 py-2 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50">
+              {editMode ? 'Cancelar' : <><Pencil aria-hidden="true" className="h-4 w-4" /> Editar</>}
             </button>
           </div>
         </div>
@@ -115,7 +116,7 @@ const Profile: React.FC = () => {
 
             {editMode && (
               <div className="border-t border-gray-200 pt-4 mt-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">🔒 Alterar Senha</h3>
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><KeyRound aria-hidden="true" className="h-4 w-4 text-indigo-700" /> Alterar senha</h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2">Senha Atual</label>
@@ -136,7 +137,7 @@ const Profile: React.FC = () => {
             {editMode && (
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setEditMode(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancelar</button>
-                <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">{loading ? 'Salvando...' : 'Salvar Alterações'}</button>
+                <button type="submit" disabled={loading} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-indigo-800 disabled:opacity-50">{loading ? 'A guardar...' : <><Save aria-hidden="true" className="h-4 w-4" /> Guardar alterações</>}</button>
               </div>
             )}
           </form>

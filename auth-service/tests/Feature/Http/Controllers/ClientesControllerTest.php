@@ -31,6 +31,31 @@ beforeEach(function () {
 });
 
 describe('ClientesController - register', function () {
+    test('permite criar uma conta pela rota pública', function () {
+        $data = [
+            'name' => 'Novo Cliente',
+            'email' => 'novo@email.com',
+            'password' => 'senha123456',
+            'role' => 'CLIENT',
+        ];
+
+        $response = $this->postJson('/api/register', $data);
+
+        $response->assertCreated()
+            ->assertJson([
+                'name' => 'Novo Cliente',
+                'email' => 'novo@email.com',
+                'role' => 'CLIENT',
+            ])
+            ->assertJsonMissing(['password']);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'novo@email.com',
+            'name' => 'Novo Cliente',
+            'role' => 'CLIENT',
+        ]);
+    });
+
     test('registra cliente com sucesso com dados completos', function () {
         // Arrange
         $data = [

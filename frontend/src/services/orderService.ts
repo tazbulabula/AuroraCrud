@@ -46,31 +46,31 @@ export interface Notification {
 }
 
 export const orderService = {
-  // ✅ Criar pedido (público - guest)
+  //  Criar pedido (público - guest)
   async criar(data: CreateOrderDTO): Promise<{ message: string; order: any }> {
     const { data: response } = await productApi.post('/orders', data);
     return response;
   },
 
-  // ✅ Rastrear pedido (público)
+  //  Rastrear pedido (público)
   async rastrear(trackingCode: string): Promise<Order> {
     const { data } = await productApi.get<Order>(`/orders/track/${trackingCode}`);
     return data;
   },
 
-  // ✅ Listar pedidos do vendedor (autenticado)
+  //  Listar pedidos do vendedor (autenticado)
   async listarTodos(): Promise<Order[]> {
     const { data } = await productApi.get<Order[]>('/orders');
     return data;
   },
 
-  // ✅ Confirmar pedido
+  //  Confirmar pedido
   async confirmar(orderId: number): Promise<Order> {
     const { data } = await productApi.post<Order>(`/orders/${orderId}/confirm`);
     return data;
   },
 
-  // ✅ Marcar como entregue
+  //  Marcar como entregue
   async entregar(orderId: number): Promise<Order> {
     const { data } = await productApi.post<Order>(`/orders/${orderId}/deliver`);
     return data;
@@ -78,13 +78,13 @@ export const orderService = {
 };
 
 export const notificationService = {
-  // ✅ Listar notificações do vendedor
+  //  Listar notificações do vendedor
   async listarTodas(): Promise<Notification[]> {
     const { data } = await productApi.get<Notification[]>('/notifications');
     return data;
   },
 
-  // ✅ Marcar como lida
+  //  Marcar como lida
   async marcarComoLida(notificationId: number): Promise<void> {
     await productApi.post(`/notifications/${notificationId}/read`);
   },

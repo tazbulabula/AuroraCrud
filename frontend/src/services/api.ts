@@ -14,7 +14,7 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
-// ✅ Usar variável de ambiente
+//  Usar variável de ambiente
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 console.log('🔍 API_URL:', API_URL);

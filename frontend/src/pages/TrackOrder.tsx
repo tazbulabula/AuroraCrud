@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { orderService, Order } from '@/services/orderService';
 import { formatKwanza, formatDate } from '@/utils/format';
+import { CheckCircle2, MapPin, Package, PackageCheck, Search, Truck, XCircle, Clock3, ArrowLeft, AlertCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 const TrackOrder: React.FC = () => {
     const { code } = useParams<{ code: string }>();
@@ -13,7 +15,7 @@ const TrackOrder: React.FC = () => {
     const [error, setError] = useState('');
     const [searched, setSearched] = useState(false);
 
-    // ✅ Se vier código na URL, buscar automaticamente
+    //  Se vier código na URL, buscar automaticamente
     useEffect(() => {
         if (code) {
             setTrackingCode(code.toUpperCase());
@@ -35,7 +37,7 @@ const TrackOrder: React.FC = () => {
         setSearched(true);
 
         try {
-            // ✅ Usar o orderService
+            //  Usar o orderService
             const data = await orderService.rastrear(trackingCodeToSearch);
             setOrder(data);
             
@@ -59,7 +61,7 @@ const TrackOrder: React.FC = () => {
         label: string; 
         color: string; 
         bg: string; 
-        icon: string; 
+        icon: LucideIcon;
         description: string;
         step: number;
     }> = {
@@ -67,7 +69,7 @@ const TrackOrder: React.FC = () => {
             label: 'Pendente', 
             color: 'text-amber-800', 
             bg: 'bg-amber-100', 
-            icon: '⏳',
+            icon: Clock3,
             description: 'Aguardando confirmação do vendedor',
             step: 1,
         },
@@ -75,7 +77,7 @@ const TrackOrder: React.FC = () => {
             label: 'Confirmado', 
             color: 'text-emerald-800', 
             bg: 'bg-emerald-100', 
-            icon: '✅',
+            icon: CheckCircle2,
             description: 'Pedido confirmado, em preparação',
             step: 2,
         },
@@ -83,7 +85,7 @@ const TrackOrder: React.FC = () => {
             label: 'Entregue', 
             color: 'text-blue-800', 
             bg: 'bg-blue-100', 
-            icon: '📦',
+            icon: PackageCheck,
             description: 'Pedido entregue com sucesso',
             step: 3,
         },
@@ -91,26 +93,27 @@ const TrackOrder: React.FC = () => {
             label: 'Cancelado', 
             color: 'text-red-800', 
             bg: 'bg-red-100', 
-            icon: '❌',
+            icon: XCircle,
             description: 'Pedido cancelado',
             step: 0,
         },
     };
 
     const steps = [
-        { step: 1, label: 'Pendente', icon: '⏳' },
-        { step: 2, label: 'Confirmado', icon: '✅' },
-        { step: 3, label: 'Entregue', icon: '📦' },
+        { step: 1, label: 'Pendente', icon: Clock3 },
+        { step: 2, label: 'Confirmado', icon: CheckCircle2 },
+        { step: 3, label: 'Entregue', icon: PackageCheck },
     ];
 
     const currentStatus = order ? statusConfig[order.status] : null;
+    const CurrentStatusIcon = currentStatus?.icon;
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-3xl">
             {/* Header */}
             <div className="text-center mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
-                    <span className="text-4xl">📦</span>
+                    <Package aria-hidden="true" className="h-10 w-10 text-white" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
                     Rastrear Pedido
@@ -142,7 +145,7 @@ const TrackOrder: React.FC = () => {
                                 A buscar...
                             </span>
                         ) : (
-                            '🔍 Rastrear'
+                            <span className="flex items-center justify-center gap-2"><Search aria-hidden="true" className="h-4 w-4" /> Rastrear</span>
                         )}
                     </button>
                 </div>
@@ -152,7 +155,7 @@ const TrackOrder: React.FC = () => {
             {error && (
                 <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-red-700 text-center animate-shake">
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-3xl">❌</span>
+                        <AlertCircle aria-hidden="true" className="h-8 w-8 text-red-700" />
                     </div>
                     <p className="font-bold text-lg mb-2">Pedido não encontrado</p>
                     <p className="text-sm">{error}</p>
@@ -163,7 +166,7 @@ const TrackOrder: React.FC = () => {
             {!searched && !order && !loading && (
                 <div className="text-center py-12">
                     <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-4xl">🔍</span>
+                        <Search aria-hidden="true" className="h-9 w-9 text-stone-400" />
                     </div>
                     <p className="text-gray-500">
                         Introduza o código de rastreio para ver os detalhes do pedido
@@ -189,7 +192,7 @@ const TrackOrder: React.FC = () => {
                                     ? 'bg-red-500/30 border border-red-300/30'
                                     : 'bg-white/20 border border-white/30'
                             }`}>
-                                <span className="text-xl">{currentStatus?.icon}</span>
+                                {CurrentStatusIcon && <CurrentStatusIcon aria-hidden="true" className="h-5 w-5" />}
                                 <span className="font-bold">{currentStatus?.label}</span>
                             </div>
                         </div>
@@ -205,7 +208,7 @@ const TrackOrder: React.FC = () => {
                     {order.status !== 'cancelled' && (
                         <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-6 md:p-8">
                             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-6">
-                                📍 Progresso do Pedido
+                                <span className="inline-flex items-center gap-2"><MapPin aria-hidden="true" className="h-4 w-4" /> Progresso do Pedido</span>
                             </h3>
                             
                             <div className="relative">
@@ -224,7 +227,7 @@ const TrackOrder: React.FC = () => {
 
                                 {/* Steps */}
                                 <div className="relative flex justify-between">
-                                    {steps.map((step, _) => {
+                                    {steps.map((step) => {
                                         const isCompleted = (currentStatus?.step || 0) >= step.step;
                                         const isCurrent = currentStatus?.step === step.step;
                                         
@@ -235,9 +238,7 @@ const TrackOrder: React.FC = () => {
                                                         ? 'bg-gradient-to-br from-indigo-600 to-purple-600 border-white shadow-lg shadow-indigo-200'
                                                         : 'bg-white border-gray-200'
                                                 } ${isCurrent ? 'scale-110 ring-4 ring-indigo-100' : ''}`}>
-                                                    <span className={`text-xl ${isCompleted ? 'text-white' : 'text-gray-400'}`}>
-                                                        {step.icon}
-                                                    </span>
+                                                    <step.icon aria-hidden="true" className={`h-5 w-5 ${isCompleted ? 'text-white' : 'text-gray-400'}`} />
                                                 </div>
                                                 <p className={`mt-3 text-xs font-bold text-center ${
                                                     isCompleted ? 'text-indigo-600' : 'text-gray-400'
@@ -255,12 +256,12 @@ const TrackOrder: React.FC = () => {
                     {/* Informação do Produto */}
                     <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-6 md:p-8">
                         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                            📦 Produto
+                            <span className="inline-flex items-center gap-2"><Package aria-hidden="true" className="h-4 w-4" /> Produto</span>
                         </h3>
                         
                         <div className="flex items-start gap-4 p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
                             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0">
-                                <span className="text-3xl">📦</span>
+                                <Package aria-hidden="true" className="h-8 w-8 text-indigo-700" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-gray-800 mb-1">
@@ -282,7 +283,7 @@ const TrackOrder: React.FC = () => {
                     {/* Dados de Entrega */}
                     <div className="bg-white rounded-3xl shadow-md border border-gray-100 p-6 md:p-8">
                         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                            🚚 Dados de Entrega
+                            <span className="inline-flex items-center gap-2"><Truck aria-hidden="true" className="h-4 w-4" /> Dados de Entrega</span>
                         </h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -331,7 +332,7 @@ const TrackOrder: React.FC = () => {
                             }}
                             className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:border-indigo-300 hover:text-indigo-600 transition-all font-semibold"
                         >
-                            ← Rastrear outro pedido
+                            <span className="inline-flex items-center gap-2"><ArrowLeft aria-hidden="true" className="h-4 w-4" /> Rastrear outro pedido</span>
                         </button>
                     </div>
                 </div>

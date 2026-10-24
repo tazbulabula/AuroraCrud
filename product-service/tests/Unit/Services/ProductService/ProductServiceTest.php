@@ -181,7 +181,7 @@ describe('ProductService - updateProduct', function () {
         
       
         expect($updatedProduct->name)->toBe('Nome Novo');
-        expect($updatedProduct->price)->toBe(75.50);
+        expect($updatedProduct->price)->toBe('75.50');
         
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
@@ -235,7 +235,7 @@ describe('ProductService - updateProduct', function () {
         
         
         expect($updatedProduct->name)->toBe('Nome Atualizado');
-        expect($updatedProduct->price)->toBe(150.00);
+        expect($updatedProduct->price)->toBe('150.00');
         expect($updatedProduct->description)->toBe('Descrição Original'); 
         expect($updatedProduct->stock)->toBe(10); 
     });

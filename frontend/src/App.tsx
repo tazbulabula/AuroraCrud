@@ -5,7 +5,7 @@ import Produtos from './pages/Produtos';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Layout from './components/Layout/Layout';
-import PublicLayout from './components/Layout/PublicLayout'; // ✅ Importar
+import PublicLayout from './components/Layout/PublicLayout'; //  Importar
 import Register from './pages/Register';
 import RoleGuard from './components/RoleGuard';
 import ToastContainer from './components/Toast/ToastContainer';
@@ -20,18 +20,18 @@ function App() {
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          {/* ✅ Rotas Públicas (com PublicLayout) */}
+          {/*  Rotas Públicas (com PublicLayout) */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<PublicProducts />} />
             <Route path="/track" element={<TrackOrder />} />
             <Route path="/track/:code" element={<TrackOrder />} />
           </Route>
 
-          {/* ✅ Rotas de Autenticação (sem layout) */}
+          {/*  Rotas de Autenticação (sem layout) */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* ✅ Rotas Protegidas (com Layout interno) */}
+          {/*  Rotas Protegidas (com Layout interno) */}
           <Route
             path="/dashboard"
             element={

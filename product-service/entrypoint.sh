@@ -13,7 +13,7 @@ php artisan config:clear
 
 echo "📦 Verificando conexão com o banco..."
 if php artisan db:show > /dev/null 2>&1; then
-    echo "✅ Conexão com o banco OK!"
+    echo " Conexão com o banco OK!"
 else
     echo "⚠️ Falha ao conectar ao banco"
     php artisan db:show || true
@@ -23,7 +23,12 @@ fi
 echo "📦 Executando migrations..."
 php artisan migrate --force
 
-# ✅ Criar diretório de views se não existir
+if [ ! -L "/var/www/public/storage" ]; then
+    echo "🔗 Criando link público para os ficheiros..."
+    php artisan storage:link
+fi
+
+#  Criar diretório de views se não existir
 if [ ! -d "/var/www/resources/views" ]; then
     echo "📁 Criando diretório de views..."
     mkdir -p /var/www/resources/views
@@ -32,8 +37,8 @@ fi
 echo "🧹 Otimizando cache..."
 php artisan config:cache
 php artisan route:cache
-# ✅ Ignorar erro se não houver views
+#  Ignorar erro se não houver views
 php artisan view:cache || true
 
-echo "✅ Setup concluído!"
+echo " Setup concluído!"
 exec php artisan serve --host=0.0.0.0 --port=8000

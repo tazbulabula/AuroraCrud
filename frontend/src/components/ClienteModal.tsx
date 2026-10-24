@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Cliente, CreateClienteDTO, UpdateClienteDTO } from '@/types';
+import { X } from 'lucide-react';
 
 interface ClienteModalProps {
   isOpen: boolean;
@@ -108,9 +109,10 @@ const ClienteModal: React.FC<ClienteModalProps> = ({
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            aria-label="Fechar"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           >
-            ✕
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 

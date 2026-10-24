@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     /**
-     * ✅ Criar pedido (público - guest)
+     *  Criar pedido (público - guest)
      */
     public function store(Request $request)
     {
@@ -82,12 +82,12 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Rastrear pedido (público)
+     *  Rastrear pedido (público)
      */
     public function trackOrder($trackingCode)
     {
         $order = Order::where('tracking_code', $trackingCode)
-            ->with(['product', 'user:id,name,email'])
+            ->with('product')
             ->first();
 
         if (!$order) {
@@ -98,7 +98,7 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Listar pedidos do vendedor
+     *  Listar pedidos do vendedor
      */
     public function listVendorOrders(Request $request)
     {
@@ -117,7 +117,7 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Confirmar pedido
+     *  Confirmar pedido
      */
     public function confirm(Request $request, $orderId)
     {
@@ -144,7 +144,7 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Marcar como entregue
+     *  Marcar como entregue
      */
     public function deliver(Request $request, $orderId)
     {
@@ -171,7 +171,7 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Buscar notificações do vendedor
+     *  Buscar notificações do vendedor
      */
     public function getNotifications(Request $request)
     {
@@ -190,7 +190,7 @@ class OrderController extends Controller
     }
 
     /**
-     * ✅ Marcar notificação como lida
+     *  Marcar notificação como lida
      */
     public function markNotificationRead(Request $request, $notificationId)
     {

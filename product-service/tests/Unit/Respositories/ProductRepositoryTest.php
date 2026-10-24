@@ -140,7 +140,7 @@ describe('ProductRepository - create', function () {
         
         expect($product)->toBeInstanceOf(Product::class);
         expect($product->name)->toBe('Novo Produto');
-        expect($product->price)->toBe(99.90);
+        expect($product->price)->toBe('99.90');
         expect($product->user_id)->toBe(1);
         
         $this->assertDatabaseHas('products', [
@@ -169,7 +169,7 @@ describe('ProductRepository - update', function () {
         
        
         expect($updatedProduct->name)->toBe('Nome Novo');
-        expect($updatedProduct->price)->toBe(75.50);
+        expect($updatedProduct->price)->toBe('75.50');
         
         $this->assertDatabaseHas('products', [
             'id' => $product->id,

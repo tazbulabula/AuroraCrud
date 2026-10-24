@@ -4,6 +4,8 @@ import { authService } from '@/services/authService';
 import { productService } from '@/services/productService';
 import { orderService, Order } from '@/services/orderService';
 import { formatKwanza, formatDate, formatNumber } from '@/utils/format';
+import { AlertTriangle, ArrowDown, ArrowUp, Banknote, BarChart3, Boxes, CheckCircle2, CircleUserRound, ClipboardList, Clock3, Package, PackageCheck, Plus, Store, Target, UsersRound, XCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface DashboardStats {
   totalProdutos: number;
@@ -57,7 +59,7 @@ const Home: React.FC = () => {
     try {
       setLoading(true);
 
-      // ✅ Usar orderService em vez de productApi
+      //  Usar orderService em vez de productApi
       const [produtosRes, ordersRes] = await Promise.allSettled([
         productService.listarTodos(),
         orderService.listarTodos(),
@@ -163,11 +165,11 @@ const Home: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const map: Record<string, { label: string; bg: string; text: string; icon: string }> = {
-      pending: { label: 'Pendente', bg: 'bg-amber-100', text: 'text-amber-800', icon: '⏳' },
-      confirmed: { label: 'Confirmado', bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '✅' },
-      delivered: { label: 'Entregue', bg: 'bg-blue-100', text: 'text-blue-800', icon: '📦' },
-      cancelled: { label: 'Cancelado', bg: 'bg-red-100', text: 'text-red-800', icon: '❌' },
+    const map: Record<string, { label: string; bg: string; text: string; icon: LucideIcon }> = {
+      pending: { label: 'Pendente', bg: 'bg-amber-100', text: 'text-amber-800', icon: Clock3 },
+      confirmed: { label: 'Confirmado', bg: 'bg-emerald-100', text: 'text-emerald-800', icon: CheckCircle2 },
+      delivered: { label: 'Entregue', bg: 'bg-blue-100', text: 'text-blue-800', icon: PackageCheck },
+      cancelled: { label: 'Cancelado', bg: 'bg-red-100', text: 'text-red-800', icon: XCircle },
     };
     return map[status] || map.pending;
   };
@@ -177,7 +179,7 @@ const Home: React.FC = () => {
     {
       label: 'Faturamento Total',
       value: stats.faturamento,
-      icon: '💰',
+      icon: Banknote,
       gradient: 'from-emerald-500 to-teal-500',
       bg: 'from-emerald-50 to-teal-50',
       isCurrency: true,
@@ -188,7 +190,7 @@ const Home: React.FC = () => {
     {
       label: 'Ticket Médio',
       value: stats.ticketMedio,
-      icon: '🎯',
+      icon: Target,
       gradient: 'from-indigo-500 to-purple-500',
       bg: 'from-indigo-50 to-purple-50',
       isCurrency: true,
@@ -199,7 +201,7 @@ const Home: React.FC = () => {
     {
       label: 'Clientes Únicos',
       value: stats.clientesUnicos,
-      icon: '👥',
+      icon: UsersRound,
       gradient: 'from-blue-500 to-cyan-500',
       bg: 'from-blue-50 to-cyan-50',
       subtitle: 'Compradores',
@@ -209,7 +211,7 @@ const Home: React.FC = () => {
     {
       label: 'Valor do Inventário',
       value: stats.valorInventario,
-      icon: '📦',
+      icon: Boxes,
       gradient: 'from-amber-500 to-orange-500',
       bg: 'from-amber-50 to-orange-50',
       isCurrency: true,
@@ -221,10 +223,10 @@ const Home: React.FC = () => {
 
   // ===== STATUS DOS PEDIDOS =====
   const orderStatus = [
-    { label: 'Pendentes', value: stats.pedidosPendentes, color: 'bg-amber-500', icon: '⏳' },
-    { label: 'Confirmados', value: stats.pedidosConfirmados, color: 'bg-emerald-500', icon: '✅' },
-    { label: 'Entregues', value: stats.pedidosEntregues, color: 'bg-blue-500', icon: '📦' },
-    { label: 'Cancelados', value: stats.pedidosCancelados, color: 'bg-red-500', icon: '❌' },
+    { label: 'Pendentes', value: stats.pedidosPendentes, color: 'bg-amber-500', icon: Clock3 },
+    { label: 'Confirmados', value: stats.pedidosConfirmados, color: 'bg-emerald-500', icon: CheckCircle2 },
+    { label: 'Entregues', value: stats.pedidosEntregues, color: 'bg-blue-500', icon: PackageCheck },
+    { label: 'Cancelados', value: stats.pedidosCancelados, color: 'bg-red-500', icon: XCircle },
   ];
 
   const totalOrders = stats.totalPedidos || 1;
@@ -240,7 +242,7 @@ const Home: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-bold bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                🏢 ERP
+                Mercado Aurora
               </span>
               <span className="text-xs font-bold bg-emerald-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-emerald-400/30 text-emerald-300">
                 ● SISTEMA ONLINE
@@ -272,7 +274,7 @@ const Home: React.FC = () => {
                 ? 'bg-purple-500/30 border-purple-300/30 text-white'
                 : 'bg-blue-500/30 border-blue-300/30 text-white'
             }`}>
-              {user?.role === 'ADMIN' ? '🏪 Vendedor' : '🛒 Cliente'}
+              {user?.role === 'ADMIN' ? 'Vendedor' : 'Cliente'}
             </span>
           </div>
         </div>
@@ -282,7 +284,7 @@ const Home: React.FC = () => {
       {stats.stockBaixo > 0 && (
         <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 flex items-start gap-4 animate-pulse-slow">
           <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl">⚠️</span>
+            <AlertTriangle aria-hidden="true" className="h-6 w-6 text-red-700" />
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-red-900 mb-1">
@@ -314,7 +316,10 @@ const Home: React.FC = () => {
             <div className="relative p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className={`w-12 h-12 bg-gradient-to-br ${card.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <span className="text-2xl">{card.icon}</span>
+                  {(() => {
+                    const Icon = card.icon;
+                    return <Icon aria-hidden="true" className="h-5 w-5 text-white" />;
+                  })()}
                 </div>
                 {card.trend && (
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${
@@ -322,7 +327,7 @@ const Home: React.FC = () => {
                       ? 'bg-emerald-100 text-emerald-700' 
                       : 'bg-red-100 text-red-700'
                   }`}>
-                    {card.trendUp ? '▲' : '▼'} {card.trend}
+                    {card.trendUp ? <ArrowUp aria-hidden="true" className="inline h-3 w-3" /> : <ArrowDown aria-hidden="true" className="inline h-3 w-3" />} {card.trend}
                   </span>
                 )}
               </div>
@@ -359,7 +364,7 @@ const Home: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-800">
-              📊 Status dos Pedidos
+              Status dos Pedidos
             </h2>
             <p className="text-sm text-gray-500">
               Distribuição por estado
@@ -373,7 +378,7 @@ const Home: React.FC = () => {
                 <div key={index}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span>{item.icon}</span>
+                      <item.icon aria-hidden="true" className="h-4 w-4 text-stone-500" />
                       <span className="text-sm font-semibold text-gray-700">
                         {item.label}
                       </span>
@@ -399,7 +404,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div>
               <h2 className="text-lg font-bold text-gray-800">
-                🏆 Top Produtos
+                Top Produtos
               </h2>
               <p className="text-sm text-gray-500">
                 Produtos mais vendidos
@@ -423,7 +428,7 @@ const Home: React.FC = () => {
             ) : topProducts.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-3xl">📊</span>
+                  <BarChart3 aria-hidden="true" className="h-7 w-7 text-stone-400" />
                 </div>
                 <p className="text-gray-500 text-sm font-medium">
                   Sem dados de vendas ainda
@@ -470,7 +475,7 @@ const Home: React.FC = () => {
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
             <h2 className="text-lg font-bold text-gray-800">
-              📋 Pedidos Recentes
+              Pedidos Recentes
             </h2>
             <p className="text-sm text-gray-500">
               Últimas transações registadas
@@ -494,7 +499,7 @@ const Home: React.FC = () => {
           ) : orders.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-3xl">📭</span>
+                <Package aria-hidden="true" className="h-7 w-7 text-stone-400" />
               </div>
               <p className="text-gray-500 text-sm font-medium">
                 Nenhum pedido recebido ainda
@@ -524,12 +529,13 @@ const Home: React.FC = () => {
               <tbody>
                 {orders.map((order) => {
                   const status = getStatusBadge(order.status);
+                  const StatusIcon = status.icon;
                   return (
                     <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-base">📦</span>
+                            <Package aria-hidden="true" className="h-4 w-4 text-indigo-700" />
                           </div>
                           <p className="text-sm font-semibold text-gray-800 truncate max-w-[200px]">
                             {order.product?.name || 'Produto'}
@@ -551,7 +557,7 @@ const Home: React.FC = () => {
                       </td>
                       <td className="py-4 px-6 text-center">
                         <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${status.bg} ${status.text} whitespace-nowrap`}>
-                          {status.icon} {status.label}
+                          <StatusIcon aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" /> {status.label}
                         </span>
                       </td>
                     </tr>
@@ -567,7 +573,7 @@ const Home: React.FC = () => {
       <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-800">
-            ⚡ Operações Rápidas
+            Operações Rápidas
           </h2>
           <p className="text-sm text-gray-500">
             Ações mais frequentes do sistema
@@ -580,7 +586,7 @@ const Home: React.FC = () => {
             className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-gray-100 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group"
           >
             <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-              <span className="text-2xl">➕</span>
+              <Plus aria-hidden="true" className="h-6 w-6 text-white" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-gray-800 text-sm">Novo Produto</p>
@@ -593,7 +599,7 @@ const Home: React.FC = () => {
             className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition-all group"
           >
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-              <span className="text-2xl">📋</span>
+              <ClipboardList aria-hidden="true" className="h-6 w-6 text-white" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-gray-800 text-sm">Pedidos</p>
@@ -609,7 +615,7 @@ const Home: React.FC = () => {
               className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-gray-100 hover:border-purple-300 hover:bg-purple-50/50 transition-all group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                <span className="text-2xl">👥</span>
+                <UsersRound aria-hidden="true" className="h-6 w-6 text-white" />
               </div>
               <div className="text-center">
                 <p className="font-semibold text-gray-800 text-sm">Clientes</p>
@@ -623,7 +629,7 @@ const Home: React.FC = () => {
             className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-gray-100 hover:border-green-300 hover:bg-green-50/50 transition-all group"
           >
             <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-              <span className="text-2xl">👤</span>
+              <CircleUserRound aria-hidden="true" className="h-6 w-6 text-white" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-gray-800 text-sm">Meu Perfil</p>
@@ -638,17 +644,17 @@ const Home: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
-              <span className="text-xl">🏢</span>
+              <Store aria-hidden="true" className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold text-sm">AuroraCrud ERP</p>
+              <p className="font-bold text-sm">Mercado Aurora</p>
               <p className="text-xs text-white/60">Sistema de Gestão Empresarial</p>
             </div>
           </div>
           <div className="flex items-center gap-6 text-xs text-white/60">
             <span>v1.0.0</span>
             <span>·</span>
-            <span>🇦🇴 Angola</span>
+            <span>Angola</span>
             <span>·</span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>

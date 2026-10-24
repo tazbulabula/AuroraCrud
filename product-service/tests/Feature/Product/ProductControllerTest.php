@@ -2,260 +2,318 @@
 
 namespace Tests\Feature\Product;
 
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // URLs dos serviços
-    $this->authUrl = env('AUTH_SERVICE_URL', 'http://auth-service:8000');
-    $this->productUrl = env('PRODUCT_SERVICE_URL', 'http://product-service:8000');
-    
-    dump("🌐 Auth URL: {$this->authUrl}");
-    dump("🌐 Product URL: {$this->productUrl}");
-
-    // Dados do usuário
-    $userData = [
-        'email' => 'taz@gmail.com',
-        'password' => '1234567890'
-    ];
-
-    // 1. Fazer login no Auth Service
-    $loginResponse = Http::post("{$this->authUrl}/api/login", $userData);
-
-    if (!$loginResponse->successful()) {
-        dump("🔄 Tentando registrar usuário...");
-        
-        $registerResponse = Http::post("{$this->authUrl}/api/register", [
-            'name' => 'Taz',
-            'email' => 'taz@gmail.com',
-            'password' => '1234567890',
-            'role' => 'ADMIN'
-        ]);
-        
-        if (!$registerResponse->successful()) {
-            throw new \Exception('Falha ao registrar: ' . $registerResponse->body());
+    $this->user = User::factory()->create();
+    config(['services.auth_service.url' => 'http://auth-service:8000']);
+    $authenticatedUser = $this->user;
+    Http::fake(function (HttpRequest $request) use ($authenticatedUser) {
+        if ($request->hasHeader('Authorization', 'Bearer remote-user-token')) {
+            return Http::response([
+                'id' => 151,
+                'name' => 'Vendedor remoto',
+                'email' => 'vendedor@example.com',
+                'role' => 'ADMIN',
+            ]);
         }
-        
-        $loginResponse = Http::post("{$this->authUrl}/api/login", $userData);
-    }
 
-    if (!$loginResponse->successful()) {
-        throw new \Exception('Falha ao fazer login: ' . $loginResponse->body());
-    }
+        if (str_contains($request->url(), '/invalid/')) {
+            return Http::response(['message' => 'Unauthenticated.'], 401);
+        }
 
-    $loginData = $loginResponse->json();
-    $this->token = $loginData['access_token'];
-    
-    $meResponse = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token
-    ])->get("{$this->authUrl}/api/me");
+        if (str_contains($request->url(), 'unavailable-auth-service')) {
+            throw new ConnectionException('Connection refused.');
+        }
 
-    $this->user = $meResponse->successful() 
-        ? $meResponse->json() 
-        : [
-            'id' => 1,
-            'name' => 'Taz',
-            'email' => 'taz@gmail.com',
-            'role' => 'ADMIN'
-        ];
-
+        return Http::response([
+            'id' => $authenticatedUser->id,
+            'name' => $authenticatedUser->name,
+            'email' => $authenticatedUser->email,
+            'role' => 'CLIENT',
+        ]);
+    });
     $this->dataProduct = [
-        'name' => 'Produto Teste ' . time(),
+        'name' => 'Produto Teste',
         'description' => 'Descrição do produto',
-        'price' => 100.00,
+        'price' => 100,
         'stock' => 5,
     ];
 });
 
-// ✅ TESTE: Criar produto (POST /products/create)
 test('pode criar produtos com autenticacao', function () {
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $this->dataProduct);
+    $response = $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->postJson('/api/products/create', $this->dataProduct);
 
-    expect($response->status())->toBe(201);
-    expect($response->json('name'))->toBe($this->dataProduct['name']);
-    expect($response->json('user_id'))->toBe($this->user['id']);
-    
-    // ✅ Verificar no banco com RefreshDatabase
+    $response->assertCreated()
+        ->assertJsonPath('name', $this->dataProduct['name'])
+        ->assertJsonPath('user_id', $this->user->id)
+        ->assertJsonPath('price', '100.00');
+
     $this->assertDatabaseHas('products', [
         'name' => $this->dataProduct['name'],
-        'user_id' => $this->user['id']
+        'user_id' => $this->user->id,
+    ]);
+
+    Http::assertSent(fn (HttpRequest $request) => $request->hasHeader('Authorization'));
+});
+
+test('aceita o ID do vendedor validado pelo auth-service sem utilizador local', function () {
+    $this->withToken('remote-user-token')
+        ->postJson('/api/products/create', $this->dataProduct)
+        ->assertCreated()
+        ->assertJsonPath('user_id', 151);
+
+    Http::assertSent(fn (HttpRequest $request) => $request->url() === 'http://auth-service:8000/api/me'
+        && $request->hasHeader('Authorization'));
+
+    $this->assertDatabaseHas('products', [
+        'name' => $this->dataProduct['name'],
+        'user_id' => 151,
     ]);
 });
 
-// ✅ TESTE: Não criar sem token (POST /products/create)
 test('nao cria produto sem token', function () {
-    $response = Http::post("{$this->productUrl}/api/products/create", $this->dataProduct);
-    
-    dump("Status sem token: " . $response->status());
-    dump("Body sem token: " . $response->body());
-    
-    expect($response->status())->toBe(401);
+    $this->postJson('/api/products/create', $this->dataProduct)
+        ->assertUnauthorized();
+
+    Http::assertNothingSent();
 });
 
-// ✅ TESTE: Não criar com token inválido (POST /products/create)
 test('nao cria produto com token invalido', function () {
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer token_invalido_123',
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $this->dataProduct);
-    expect($response->status())->toBe(401);
+    config(['services.auth_service.url' => 'http://auth-service:8000/invalid']);
+
+    $this->withHeader('Authorization', 'Bearer token-invalido')
+        ->postJson('/api/products/create', $this->dataProduct)
+        ->assertUnauthorized();
 });
 
-// ✅ TESTE: Criar com dados mínimos (POST /products/create)
+test('responde com indisponibilidade se o auth-service nao puder validar o token', function () {
+    config(['services.auth_service.url' => 'http://unavailable-auth-service:8000']);
+
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->getJson('/api/products')
+        ->assertServiceUnavailable();
+});
+
 test('cria produto com dados minimos', function () {
     $data = [
-        'name' => 'Produto Minimo ' . time(),
+        'name' => 'Produto Minimo',
         'price' => 50,
-        'stock' => 10
+        'stock' => 10,
     ];
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $data);
-
-    expect($response->status())->toBe(201);
-    expect($response->json('name'))->toBe($data['name']);
-    expect($response->json('price'))->toBe(50);  // ✅ Comparar com inteiro
-    expect($response->json('stock'))->toBe(10);
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->postJson('/api/products/create', $data)
+        ->assertCreated()
+        ->assertJsonPath('name', $data['name'])
+        ->assertJsonPath('price', '50.00')
+        ->assertJsonPath('stock', 10);
 });
 
-// ✅ TESTE: Validação falha sem nome (POST /products/create)
-test('validacao falha quando nome esta faltando', function () {
-    $data = [
-        'price' => 100.00,
-        'stock' => 5
-    ];
+test('pode enviar e consultar imagem de produto', function () {
+    Storage::fake('public');
+    $image = UploadedFile::fake()->createWithContent(
+        'produto.png',
+        base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/6z8AAAAASUVORK5CYII=')
+    );
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $data);
-
-    expect($response->status())->toBe(422);
-    expect($response->json())->toHaveKey('errors');
-    expect($response->json('errors'))->toHaveKey('name');
-});
-
-// ✅ TESTE: Validação falha com preço negativo (POST /products/create)
-test('validacao falha quando preco e negativo', function () {
-    $data = [
-        'name' => 'Produto',
-        'price' => -10.00,
-        'stock' => 5
-    ];
-
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $data);
-
-    expect($response->status())->toBe(422);
-    expect($response->json('errors'))->toHaveKey('price');
-});
-
-// ✅ TESTE: Validação falha com stock negativo (POST /products/create)
-test('validacao falha quando stock e negativo', function () {
-    $data = [
-        'name' => 'Produto',
-        'price' => 100.00,
-        'stock' => -5
-    ];
-
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $data);
-
-    expect($response->status())->toBe(422);
-    expect($response->json('errors'))->toHaveKey('stock');
-});
-
-// ✅ TESTE: Listar produtos (GET /products)
-test('pode listar produtos do usuario', function () {
-    // Criar alguns produtos
-    for ($i = 0; $i < 3; $i++) {
-        Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept' => 'application/json'
-        ])->post("{$this->productUrl}/api/products/create", [
-            'name' => 'Produto Lista ' . $i . time(),
-            'price' => 10 + $i,
-            'stock' => 5 + $i
+    $response = $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->post('/api/products/create', [
+            ...$this->dataProduct,
+            'image' => $image,
         ]);
-    }
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->get("{$this->productUrl}/api/products");
+    $response->assertCreated();
 
-    expect($response->status())->toBe(200);
-    expect($response->json())->toBeArray();
-    expect(count($response->json()))->toBeGreaterThanOrEqual(3);
+    $product = Product::query()->firstOrFail();
+    expect($product->image_path)->toStartWith('products/');
+    Storage::disk('public')->assertExists($product->image_path);
+
+    $response->assertJsonPath('image_url', route('products.image', ['id' => $product->id]));
+    $this->get("/api/products/{$product->id}/image")
+        ->assertOk()
+        ->assertHeader('content-type', 'image/png');
 });
 
-// ✅ TESTE: Atualizar produto (PUT /products/update/{id})
-test('pode atualizar produto', function () {
-    // Criar produto
-    $createResponse = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $this->dataProduct);
+test('carrega o catalogo publico e serve as imagens da vitrina por categoria', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('products/roupas/look-1.jpg', 'image bytes');
+    Storage::disk('public')->put('products/roupas/not-a-photo.txt', 'not an image');
 
-    $product = $createResponse->json();
-    $productId = $product['id'];
+    $response = $this->getJson('/api/products/landing')
+        ->assertOk()
+        ->assertJsonCount(0, 'products')
+        ->assertJsonCount(1, 'showcase_images')
+        ->assertJsonPath('showcase_images.0.category', 'roupas')
+        ->assertJsonPath('showcase_images.0.category_label', 'Moda e estilo')
+        ->assertJsonPath('showcase_images.0.url', url('/storage/products/roupas/look-1.jpg'));
 
+    $this->get(route('products.showcase.image', [
+        'category' => 'roupas',
+        'filename' => 'look-1.jpg',
+    ]))
+        ->assertOk()
+        ->assertHeader('content-type', 'image/jpeg')
+        ->assertHeader('cache-control', 'max-age=86400, public');
+});
+
+test('nao serve imagens da vitrina fora das categorias permitidas', function () {
+    $this->get('/api/products/showcase/images/../../.env')
+        ->assertNotFound();
+});
+
+test('rejeita ficheiros que nao sejam imagens permitidas', function () {
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->post('/api/products/create', [
+            ...$this->dataProduct,
+            'image' => UploadedFile::fake()->createWithContent('produto.txt', 'not an image'),
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('image');
+});
+
+test('pode substituir ou remover a imagem do produto', function () {
+    Storage::fake('public');
+    $oldImagePath = 'products/antiga.png';
+    Storage::disk('public')->put($oldImagePath, 'old image');
+    $product = Product::factory()->create([
+        'user_id' => $this->user->id,
+        'image_path' => $oldImagePath,
+    ]);
+
+    $image = UploadedFile::fake()->createWithContent(
+        'nova.png',
+        base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/6z8AAAAASUVORK5CYII=')
+    );
+
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->post("/api/products/update/{$product->id}", [
+            '_method' => 'PUT',
+            'image' => $image,
+        ])
+        ->assertOk();
+
+    $product->refresh();
+    expect($product->image_path)->not->toBe($oldImagePath);
+    Storage::disk('public')->assertMissing($oldImagePath);
+    Storage::disk('public')->assertExists($product->image_path);
+
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->post("/api/products/update/{$product->id}", [
+            '_method' => 'PUT',
+            'remove_image' => true,
+        ])->assertOk()
+        ->assertJsonPath('image_url', null);
+
+    Storage::disk('public')->assertMissing($product->image_path);
+});
+
+test('validacao falha quando nome esta faltando', function () {
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->postJson('/api/products/create', [
+            'price' => 100,
+            'stock' => 5,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('name');
+});
+
+test('validacao falha quando preco e negativo', function () {
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->postJson('/api/products/create', [
+            'name' => 'Produto',
+            'price' => -10,
+            'stock' => 5,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('price');
+});
+
+test('validacao falha quando stock e negativo', function () {
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->postJson('/api/products/create', [
+            'name' => 'Produto',
+            'price' => 100,
+            'stock' => -5,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('stock');
+});
+
+test('lista apenas produtos do usuario autenticado', function () {
+    $otherUser = User::factory()->create();
+    Product::factory()->count(3)->create(['user_id' => $this->user->id]);
+    Product::factory()->create(['user_id' => $otherUser->id]);
+
+    $response = $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->getJson('/api/products');
+
+    $response->assertOk()
+        ->assertJsonCount(3);
+
+    expect(collect($response->json())->pluck('user_id')->unique()->all())
+        ->toBe([$this->user->id]);
+});
+
+test('pode atualizar produto do usuario autenticado', function () {
+    $product = Product::factory()->create(['user_id' => $this->user->id]);
     $updateData = [
-        'name' => 'Produto Atualizado ' . time(),
+        'name' => 'Produto Atualizado',
         'price' => 200,
-        'stock' => 15
+        'stock' => 15,
     ];
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->put("{$this->productUrl}/api/products/update/{$productId}", $updateData);
-
-    expect($response->status())->toBe(200);
-    expect($response->json('name'))->toBe($updateData['name']);
-    expect($response->json('price'))->toBe(200);  // ✅ Comparar com inteiro
-    expect($response->json('stock'))->toBe(15);
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->putJson("/api/products/update/{$product->id}", $updateData)
+        ->assertOk()
+        ->assertJsonPath('name', $updateData['name'])
+        ->assertJsonPath('price', '200.00')
+        ->assertJsonPath('stock', 15);
 });
 
-// ✅ TESTE: Deletar produto (DELETE /products/{id})
-test('pode deletar produto', function () {
-    // Criar produto
-    $createResponse = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->post("{$this->productUrl}/api/products/create", $this->dataProduct);
+test('nao permite acessar produto de outro usuario', function () {
+    $otherUser = User::factory()->create();
+    $product = Product::factory()->create(['user_id' => $otherUser->id]);
 
-    $product = $createResponse->json();
-    $productId = $product['id'];
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->getJson("/api/products/{$product->id}")
+        ->assertNotFound();
+});
 
-    // Deletar
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->delete("{$this->productUrl}/api/products/{$productId}");
+test('pode deletar produto do usuario autenticado', function () {
+    Storage::fake('public');
+    $imagePath = 'products/remover.png';
+    Storage::disk('public')->put($imagePath, 'image');
+    $product = Product::factory()->create([
+        'user_id' => $this->user->id,
+        'image_path' => $imagePath,
+    ]);
 
-    dump("Delete Status: " . $response->status());
-    dump("Delete Body: " . $response->body());
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->deleteJson("/api/products/{$product->id}")
+        ->assertNoContent();
 
-    expect($response->status())->toBe(204);
-    
-    // Verificar se foi deletado
-    $getResponse = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->token,
-        'Accept' => 'application/json'
-    ])->get("{$this->productUrl}/api/products/{$productId}");
+    $this->assertDatabaseMissing('products', ['id' => $product->id]);
+    Storage::disk('public')->assertMissing($imagePath);
+});
 
-    expect($getResponse->status())->toBe(404);
+test('nao permite deletar produto de outro usuario', function () {
+    $otherUser = User::factory()->create();
+    $product = Product::factory()->create(['user_id' => $otherUser->id]);
+
+    $this->withHeader('Authorization', 'Bearer valid-test-token')
+        ->deleteJson("/api/products/{$product->id}")
+        ->assertNotFound();
+
+    $this->assertDatabaseHas('products', ['id' => $product->id]);
 });

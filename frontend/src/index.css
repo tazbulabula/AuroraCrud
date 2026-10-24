@@ -1,5 +1,56 @@
 @import "tailwindcss";
 
+@theme {
+  --color-indigo-50: #edf5ef;
+  --color-indigo-100: #d9e9dd;
+  --color-indigo-200: #b8d6c0;
+  --color-indigo-300: #8fbe9d;
+  --color-indigo-400: #65a47a;
+  --color-indigo-500: #46865f;
+  --color-indigo-600: #326f4c;
+  --color-indigo-700: #28583e;
+  --color-indigo-800: #214632;
+  --color-indigo-900: #1b392a;
+  --color-indigo-950: #102319;
+  --color-purple-50: #fbf3e9;
+  --color-purple-100: #f5e5cf;
+  --color-purple-200: #ebcda7;
+  --color-purple-300: #dfad76;
+  --color-purple-400: #d18d52;
+  --color-purple-500: #bf713d;
+  --color-purple-600: #a95932;
+  --color-purple-700: #8c472b;
+  --color-purple-800: #713b28;
+  --color-purple-900: #5d3224;
+  --color-purple-950: #35190f;
+}
+
+@layer base {
+  :root {
+    font-family: Inter, "Segoe UI", sans-serif;
+    color: #25352d;
+    background: #f6f8f5;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    background: #f6f8f5;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 /* Animações para os toasts */
 @keyframes slideIn {
   from {
@@ -53,4 +104,44 @@
 
 .animate-shake {
   animation: shake 0.3s ease-in-out;
+}
+
+@keyframes hero-image-arrive {
+  from {
+    opacity: 0.35;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.market-hero-image {
+  animation: hero-image-arrive 1.2s ease-out both;
+}
+
+@keyframes market-orb-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-22px, 16px, 0);
+  }
+}
+
+.market-hero-orb {
+  animation: market-orb-drift 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-hero-image,
+  .market-hero-orb {
+    animation: none;
+  }
+
+  .market-category-card,
+  .market-category-card img {
+    transition: none;
+  }
 }

@@ -1,12 +1,24 @@
-import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
+import {
+  BadgeHelp,
+  ChartNoAxesCombined,
+  CircleUserRound,
+  ClipboardList,
+  Handshake,
+  LayoutDashboard,
+  Package,
+  Settings,
+  UsersRound,
+  X,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useAuth } from '@/hooks/useAuth';
+import BrandMark from '@/components/BrandMark';
 
-// ✅ Interfaces
 interface MenuItem {
   path: string;
-  icon: string;
+  icon: LucideIcon;
   label: string;
   show: boolean;
   exact?: boolean;
@@ -23,80 +35,42 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
+const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const { canViewClientes } = usePermissions();
   const { user } = useAuth();
   const location = useLocation();
 
   const menuGroups: MenuGroup[] = [
     {
-      title: 'Principal',
+      title: 'Visão geral',
       items: [
-        { 
-          path: '/dashboard', 
-          icon: '📊', 
-          label: 'Dashboard', 
-          show: true,
-          exact: true 
-        },
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Resumo', show: true, exact: true },
       ],
     },
     {
-      title: 'Vendas',
+      title: 'Operações',
       items: [
-        { 
-          path: '/dashboard/pedidos', 
-          icon: '🛒', 
-          label: 'Pedidos', 
-          show: true 
-        },
-        { 
-          path: '/dashboard/produtos', 
-          icon: '📦', 
-          label: 'Produtos', 
-          show: true 
-        },
+        { path: '/dashboard/pedidos', icon: ClipboardList, label: 'Encomendas', show: true },
+        { path: '/dashboard/produtos', icon: Package, label: 'Produtos', show: true },
       ],
     },
     {
       title: 'Gestão',
       items: [
-        { 
-          path: '/dashboard/clientes', 
-          icon: '👥', 
-          label: 'Clientes', 
-          show: canViewClientes() 
-        },
-        { 
-          path: '/dashboard/fornecedores', 
-          icon: '🏢', 
-          label: 'Fornecedores', 
-          show: true,
-          disabled: true 
-        },
+        { path: '/dashboard/clientes', icon: UsersRound, label: 'Utilizadores', show: canViewClientes() },
+        { path: '/dashboard/fornecedores', icon: Handshake, label: 'Fornecedores', show: true, disabled: true },
       ],
     },
     {
-      title: 'Sistema',
+      title: 'Conta',
       items: [
-        { 
-          path: '/dashboard/profile', 
-          icon: '👤', 
-          label: 'Meu Perfil', 
-          show: true 
-        },
-        { 
-          path: '/dashboard/configuracoes', 
-          icon: '⚙️', 
-          label: 'Configurações', 
-          show: true,
-          disabled: true 
-        },
+        { path: '/dashboard/profile', icon: CircleUserRound, label: 'O meu perfil', show: true },
+        { path: '/dashboard/configuracoes', icon: Settings, label: 'Definições', show: true, disabled: true },
       ],
     },
   ];
 
-  const handleLinkClick = () => {
+  const closeMobileSidebar = () => {
     if (window.innerWidth < 1024) {
       setIsOpen(false);
     }
@@ -104,139 +78,73 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <>
-      {/* Overlay mobile */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-40 bg-stone-950/40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-72 bg-gradient-to-b from-white via-white to-indigo-50/30
-          shadow-2xl lg:shadow-lg
-          transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col h-full
-          border-r border-gray-100
-        `}
-      >
-        {/* Logo */}
-        <div className="flex-shrink-0 h-20 flex items-center justify-between px-6 border-b border-gray-100">
-          <Link 
-            to="/dashboard" 
-            className="flex items-center gap-3 group"
-            onClick={handleLinkClick}
-          >
-            <div className="w-11 h-11 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
-              <span className="text-xl">🚀</span>
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-gray-800 leading-tight">
-                Aurora<span className="text-indigo-600">Crud</span>
-              </h1>
-              <p className="text-[10px] text-gray-500 leading-tight uppercase tracking-wider font-semibold">
-                ERP System
-              </p>
-            </div>
+      <aside className={`fixed inset-y-0 left-0 z-50 flex h-full w-72 flex-col border-r border-stone-200 bg-white shadow-xl transition-transform duration-300 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex h-[4.5rem] flex-shrink-0 items-center justify-between border-b border-stone-100 px-5">
+          <Link to="/dashboard" onClick={closeMobileSidebar} className="group flex items-center gap-3">
+            <BrandMark className="h-10 w-10 rounded-xl bg-indigo-700 text-white shadow-sm transition-transform group-hover:scale-105" />
+            <span>
+              <span className="block text-sm font-extrabold leading-tight text-stone-900">Mercado Aurora</span>
+              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">Área de gestão</span>
+            </span>
           </Link>
-
-          <button
-            onClick={() => setIsOpen(false)}
-            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
-            aria-label="Fechar menu"
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button type="button" onClick={() => setIsOpen(false)} className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 lg:hidden" aria-label="Fechar menu">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Info do Utilizador */}
         {user && (
-          <div className="flex-shrink-0 px-4 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md ${
-                user.role === 'ADMIN'
-                  ? 'bg-gradient-to-br from-purple-500 to-pink-500'
-                  : 'bg-gradient-to-br from-indigo-500 to-blue-500'
-              }`}>
+          <div className="mx-4 mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-700 text-sm font-bold text-white">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-800 truncate">
-                  {user.name}
-                </p>
-                <span className={`inline-block px-1.5 py-0.5 text-[9px] font-bold rounded ${
-                  user.role === 'ADMIN'
-                    ? 'bg-purple-100 text-purple-800'
-                    : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {user.role === 'ADMIN' ? '🏪 VENDEDOR' : '🛒 CLIENTE'}
-                </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-stone-800">{user.name}</p>
+                <p className="mt-0.5 text-xs text-stone-500">{user.role === 'ADMIN' ? 'Vendedor' : 'Cliente'}</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Menu */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-6">
-          {menuGroups.map((group, groupIndex) => {
+        <nav aria-label="Navegação da gestão" className="flex-1 space-y-6 overflow-y-auto px-3 py-6">
+          {menuGroups.map(group => {
             const visibleItems = group.items.filter(item => item.show);
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={groupIndex}>
-                <p className="px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  {group.title}
-                </p>
-
+              <div key={group.title}>
+                <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-stone-400">{group.title}</p>
                 <div className="space-y-1">
-                  {visibleItems.map((item) => {
-                    const isActive = item.exact 
-                      ? location.pathname === item.path
-                      : location.pathname.startsWith(item.path);
+                  {visibleItems.map(item => {
+                    const active = item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
+                    const Icon = item.icon;
 
                     return (
                       <NavLink
                         key={item.path}
                         to={item.disabled ? '#' : item.path}
-                        onClick={(e) => {
+                        onClick={event => {
                           if (item.disabled) {
-                            e.preventDefault();
+                            event.preventDefault();
                             return;
                           }
-                          handleLinkClick();
+                          closeMobileSidebar();
                         }}
-                        className={`
-                          group flex items-center gap-3 px-3 py-2.5 rounded-xl
-                          transition-all duration-200 relative
-                          ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}
-                          ${isActive
-                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-200'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                          }
-                        `}
+                        aria-disabled={item.disabled}
+                        className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${item.disabled ? 'cursor-not-allowed opacity-45' : ''} ${active ? 'bg-indigo-700 text-white shadow-sm shadow-indigo-900/15' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-950'}`}
                       >
-                        <span className={`text-xl flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110 transition-transform'}`}>
-                          {item.icon}
-                        </span>
-                        <span className={`text-sm font-medium flex-1 ${isActive ? 'text-white' : ''}`}>
-                          {item.label}
-                        </span>
-
-                        {item.disabled && (
-                          <span className="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
-                            BREVE
-                          </span>
-                        )}
-
-                        {isActive && (
-                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
-                        )}
+                        <Icon aria-hidden="true" className={`h-[18px] w-[18px] shrink-0 ${active ? 'text-white' : 'text-stone-500 group-hover:text-indigo-700'}`} strokeWidth={1.8} />
+                        <span className="flex-1">{item.label}</span>
+                        {item.disabled && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase text-amber-800">Breve</span>}
                       </NavLink>
                     );
                   })}
@@ -246,33 +154,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           })}
         </nav>
 
-        {/* Card de Suporte */}
-        <div className="flex-shrink-0 px-4 pb-4">
-          <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-4 text-white shadow-lg">
-            <div className="relative">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3 border border-white/30">
-                <span className="text-xl">💡</span>
-              </div>
-              <h3 className="font-bold text-sm mb-1">Precisa de ajuda?</h3>
-              <p className="text-xs text-white/80 mb-3 leading-relaxed">
-                Consulte a documentação ou contacte o suporte.
-              </p>
-              <button className="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg text-xs font-semibold transition-colors border border-white/30">
-                Ver Documentação →
-              </button>
-            </div>
+        <div className="mx-3 mb-3 rounded-2xl bg-[#f2f5ef] p-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-stone-800">
+            <BadgeHelp aria-hidden="true" className="h-4 w-4 text-indigo-700" />
+            Precisa de ajuda?
           </div>
+          <p className="mt-2 text-xs leading-5 text-stone-600">Consulte os seus pedidos e mantenha o catálogo atualizado.</p>
+          <Link to="/dashboard/profile" onClick={closeMobileSidebar} className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-indigo-800 hover:text-indigo-950">
+            Aceder ao perfil <ChartNoAxesCombined aria-hidden="true" className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        {/* Footer */}
-        <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100">
-          <div className="flex items-center justify-between text-[10px] text-gray-400">
-            <span className="font-semibold">v1.0.0</span>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-              <span className="font-semibold">Online</span>
-            </div>
-          </div>
+        <div className="flex items-center justify-between border-t border-stone-100 px-5 py-4 text-[10px] font-medium text-stone-400">
+          <span>Mercado Aurora · v1.0</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            Online
+          </span>
         </div>
       </aside>
     </>
