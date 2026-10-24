@@ -1,4 +1,11 @@
 *
 !private/
 !public/
+!public/products/
+!public/products/automoveis/
+!public/products/automoveis/**
+!public/products/electronicos/
+!public/products/electronicos/**
+!public/products/roupas/
+!public/products/roupas/**
 !.gitignore
